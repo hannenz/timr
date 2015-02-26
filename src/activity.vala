@@ -1,6 +1,6 @@
 namespace Timr {
 
-	class Activity {
+	public class Activity {
 
 		private GLib.TimeZone timezone;
 
@@ -9,6 +9,15 @@ namespace Timr {
 		private GLib.DateTime end;
 
 		private bool is_running;
+
+		public string description;
+
+		public string project;
+
+		public string client;
+
+		public string type;
+
 		
 		public 	Activity() {
 
@@ -20,6 +29,7 @@ namespace Timr {
 		public void stop () {
 			this.end = new GLib.DateTime.now(this.timezone);
 			this.is_running = false;
+
 		}
 
 		public string get_duration_nice () {
@@ -50,6 +60,14 @@ namespace Timr {
 				this.end.format("%H:%M")
 			);
 			return timespan;
+		}
+
+		public string get_start_datetime() {
+			return this.start.format("%Y-%m-%d %T");
+		}
+
+		public string get_end_datetime() {
+			return this.end.format("%Y-%m-%d %T");
 		}
 	}
 }

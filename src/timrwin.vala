@@ -12,36 +12,38 @@ namespace Timr {
 		[GtkChild]
 		private Gtk.ComboBoxText projects_combobox;
 
+		[GtkChild]
+		public Gtk.ListStore activities;
+
 		private GLib.Timer timer;
 
 		private bool timer_running = false;
 
-		private Activity activity = null;
+		public Activity activity;
 
-		[GtkChild]
-		public Gtk.ListStore activities;
+		public signal void activity_stopped(Activity a);
 
-		public ApplicationWindow (Gtk.Application application) {
+		public ApplicationWindow (Timr application) {
 			GLib.Object (application:application);
 
 			this.timer = new GLib.Timer();
 			this.elapsed_label.set_size_request(120, -1);
 
-			Gtk.TreeIter iter;
-			this.activities.append(out iter);
-			this.activities.set(iter,
-				0, "Checked Emails",
-				1, "HALMA_15001 Internes",
-				2, 17*60 + 12,
-				3, "<b>17</b>:12 min"
-			);
-			this.activities.append(out iter);
-			this.activities.set(iter,
-				0, "Bugfix",
-				1, "HILAG_15001 Websitepflege",
-				2, 17*60 + 12,
-				3, "<b>03</b>:44 hrs"
-			);
+			// Gtk.TreeIter iter;
+			// this.activities.append(out iter);
+			// this.activities.set(iter,
+			// 	0, "Checked Emails",
+			// 	1, "HALMA_15001 Internes",
+			// 	2, 17*60 + 12,
+			// 	3, "<b>17</b>:12 min"
+			// );
+			// this.activities.append(out iter);
+			// this.activities.set(iter,
+			// 	0, "Bugfix",
+			// 	1, "HILAG_15001 Websitepflege",
+			// 	2, 17*60 + 12,
+			// 	3, "<b>03</b>:44 hrs"
+			// );
 
 			Timeout.add(1, this.update_timer);
 		}
@@ -81,6 +83,9 @@ namespace Timr {
 
 				this.activity.stop();
 
+				this.activity.description = activity_entry.get_text();
+				this.activity.project = projects_combobox.get_active_text();
+
 				timer.stop();
 				timer_running = false;
 				button.set_label("Start timer");
@@ -91,8 +96,8 @@ namespace Timr {
 				Gtk.TreeIter iter;
 				this.activities.append(out iter);
 				this.activities.set(iter,
-					0, activity_entry.get_text(),
-					1, projects_combobox.get_active_text(),
+					0, this.activity.description,
+					1, this.activity.project,
 					2, this.activity.get_duration(),
 					3, this.activity.get_duration_nice(),
 					// 4, time0.to_unix(),
@@ -104,6 +109,9 @@ namespace Timr {
 				elapsed_label.set_text("0 sec");
 				activity_entry.set_text("");
 				projects_combobox.set_active(0);
+
+				// Emit signal
+				activity_stopped(this.activity);
 			}
 			else {
 				this.activity = new Activity();
