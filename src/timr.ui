@@ -16,6 +16,8 @@
 			<column type="gint" />
 			<!-- end (as UNIX timestamp) -->
 			<column type="gint" />
+			<!-- timespan formatted -->
+			<column type="gchararray" />
 		</columns>
 	</object>
 
@@ -92,9 +94,16 @@
 						<object class="GtkTreeView" id="activities_treeview">
 							<property name="visible">True</property>
 							<property name="model">activities</property>
+							<property name="headers-clickable">True</property>
+							<property name="rules-hint">True</property>
+							<property name="odd-row-color">#e0e0e0</property>
 							<child>
 								<object class="GtkTreeViewColumn" id="description">
 									<property name="title">Description</property>
+									<property name="clickable">True</property>
+									<property name="resizable">True</property>
+									<property name="sort-column-id">-1</property>
+									<property name="min-width">400</property>
 									<child>
 										<object class="GtkCellRendererText" />
 										<attributes>
@@ -106,6 +115,10 @@
 							<child>
 								<object class="GtkTreeViewColumn" id="project">
 									<property name="title">Project</property>
+									<property name="clickable">True</property>
+									<property name="resizable">True</property>
+									<property name="sort-column-id">-1</property>
+									<property name="min-width">200</property>
 									<child>
 										<object class="GtkCellRendererText" />
 										<attributes>
@@ -117,6 +130,9 @@
 							<child>
 								<object class="GtkTreeViewColumn" id="duration">
 									<property name="title">Duration</property>
+									<property name="clickable">True</property>
+									<property name="resizable">True</property>
+									<property name="sort-column-id">-1</property>
 									<child>
 										<object class="GtkCellRendererText" />
 										<attributes>
@@ -125,36 +141,23 @@
 									</child>
 								</object>
 							</child>
+							<child>
+								<object class="GtkTreeViewColumn" id="timespan">
+									<property name="title">Timespan</property>
+									<property name="clickable">True</property>
+									<property name="resizable">True</property>
+									<property name="sort-column-id">-1</property>
+									<child>
+										<object class="GtkCellRendererText" />
+										<attributes>
+											<attribute name="markup">6</attribute>
+										</attributes>
+									</child>
+								</object>
+							</child>
 						</object>
 					</child>
 				</object>
 			</child>
-<!-- 
-
-		<child type="titlebar">
-			<object class="GtkHeaderBar" id="header">
-				<property name="visible">True</property>
-				<property name="show-close-button">True</property>
-			</object>
-		</child>
-
-		<child>
-			<object class="GtkPaned">
-				<property name="visible">True</property>
-				<property name="orientation">GTK_ORIENATATION_HORIZONTAL</property>
-				<child>
-					<object class="GtkLabel">
-						<property name="visible">True</property>
-						<property name="label">Ein Label</property>
-					</object>
-				</child>
-				<child>
-					<object class="GtkLabel">
-						<property name="visible">True</property>
-						<property name="label">Ein anderes Label</property>
-					</object>
-				</child>
-			</object>
-		</child> -->
 	</template>
 </interface>
