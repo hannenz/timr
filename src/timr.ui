@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<requires lib="gtk+" version="3.12"/>
+
+	<object class="GtkListStore" id="activities">
+		<columns>
+			<!-- description -->
+			<column type="gchararray" />
+			<!-- project name -->
+			<column type="gchararray" />
+			<!-- duration (in seconds) -->
+			<column type="gint" />
+			<!-- duration nice -->
+			<column type="gchararray" />
+			<!-- start (as UNIX timestamp) -->
+			<column type="gint" />
+			<!-- end (as UNIX timestamp) -->
+			<column type="gint" />
+		</columns>
+	</object>
+
+	<template class="TimrApplicationWindow" parent="GtkApplicationWindow">
+		<property name="title" translatable="yes">Timr</property>
+		<property name="default-width">800</property>
+		<property name="default-height">600</property>
+
+			<child type="titlebar">
+				<object class="GtkHeaderBar" id="header">
+					<property name="visible">True</property>
+					<property name="show-close-button">True</property>
+					<property name="has-subtitle">False</property>
+
+<!-- 					<child type="title">
+						<object class="GtkLabel">
+							<property name="visible">True</property>
+							<property name="label">Timr Time Tracker</property>
+						</object>
+					</child>
+ -->
+
+					<child>
+						<object class="GtkEntry" id="activity_entry">
+							<property name="visible">True</property>
+							<property name="placeholder-text">What are you working on?</property>
+						</object>
+						<packing>
+							<property name="pack-type">start</property>
+						</packing>
+					</child>
+					<child>
+						<object class="GtkComboBoxText" id="projects_combobox">
+							<property name="visible">True</property>
+							<items>
+								<item> </item>
+								<item>ZSG_14003 Website</item>
+								<item>HALMA_15001 HALMA intern</item>
+								<item>HILAG_15001 Websitepflege</item>
+								<item>BON_14062 Blätterkatalog</item>
+							</items>
+						</object>
+						<packing>
+							<property name="pack-type">start</property>
+						</packing>
+					</child>
+					<child>
+						<object class="GtkLabel" id="elapsed_label">
+							<property name="visible">True</property>
+							<property name="label">0 sec</property>
+						</object>
+						<packing>
+							<property name="pack-type">start</property>
+						</packing>
+					</child>
+					<child>
+						<object class="GtkButton">
+							<property name="visible">True</property>
+							<property name="label">Start timer</property>
+							<signal name="clicked" handler="on_timer_toggle_button_clicked" />
+						</object>
+						<packing>
+							<property name="pack-type">start</property>
+						</packing>
+					</child>
+				</object>
+			</child>
+
+			<child>
+				<object class="GtkBox" id="content_box">
+					<property name="visible">True</property>
+					<property name="orientation">vertical</property>
+					<child>
+						<object class="GtkTreeView" id="activities_treeview">
+							<property name="visible">True</property>
+							<property name="model">activities</property>
+							<child>
+								<object class="GtkTreeViewColumn" id="description">
+									<property name="title">Description</property>
+									<child>
+										<object class="GtkCellRendererText" />
+										<attributes>
+											<attribute name="text">0</attribute>
+										</attributes>
+									</child>
+								</object>
+							</child>
+							<child>
+								<object class="GtkTreeViewColumn" id="project">
+									<property name="title">Project</property>
+									<child>
+										<object class="GtkCellRendererText" />
+										<attributes>
+											<attribute name="text">1</attribute>
+										</attributes>
+									</child>
+								</object>
+							</child>
+							<child>
+								<object class="GtkTreeViewColumn" id="duration">
+									<property name="title">Duration</property>
+									<child>
+										<object class="GtkCellRendererText" />
+										<attributes>
+											<attribute name="markup">3</attribute>
+										</attributes>
+									</child>
+								</object>
+							</child>
+						</object>
+					</child>
+				</object>
+			</child>
+<!-- 
+
+		<child type="titlebar">
+			<object class="GtkHeaderBar" id="header">
+				<property name="visible">True</property>
+				<property name="show-close-button">True</property>
+			</object>
+		</child>
+
+		<child>
+			<object class="GtkPaned">
+				<property name="visible">True</property>
+				<property name="orientation">GTK_ORIENATATION_HORIZONTAL</property>
+				<child>
+					<object class="GtkLabel">
+						<property name="visible">True</property>
+						<property name="label">Ein Label</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkLabel">
+						<property name="visible">True</property>
+						<property name="label">Ein anderes Label</property>
+					</object>
+				</child>
+			</object>
+		</child> -->
+	</template>
+</interface>
