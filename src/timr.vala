@@ -9,7 +9,6 @@ namespace Timr {
 
 		public Sqlite.Database db;
 
-
 		public Timr() {
 			application_id = "de.hannenz.timr";
 		}
@@ -17,6 +16,18 @@ namespace Timr {
 		public override void activate() {
 			window = new ApplicationWindow(this);
 			window.present();
+
+			window.update_database.connect( (query) => {
+
+				int rc;
+				string error_message;
+
+				if ((rc = db.exec(query, null, out error_message)) != Sqlite.OK){
+					stderr.printf("Error while executing Sqlite query: %d: %s\n", rc, error_message);
+
+				}
+			});
+
 			window.activity_stopped.connect( (activity) => {
 
 				string query = "INSERT INTO activities (description,job_id,begin,end) VALUES ('%s', %u, '%s', '%s')".printf(
@@ -36,21 +47,13 @@ namespace Timr {
 
 			});
 
-			window.client_edited.connect( (query) => {
-				string errmsg;
-				int ec;
-				if ((ec = db.exec(query, null, out errmsg)) != Sqlite.OK){
-					stderr.printf("Error while writing client record: %d: %s\n", ec, errmsg);
-				}
-			});
-
 			load_data();
 		}
 
 		private bool load_data() {
 
 			Statement stmt;
-			int ec, col, cols;
+			int ec, cols;
 			Gtk.TreeIter iter;
 			string query = "";
 
@@ -79,8 +82,13 @@ namespace Timr {
 						string name = stmt.column_text(1);
 						string abbrev = stmt.column_text(2);
 						
-						window.clients.append(out iter);
-						window.clients.set(iter, 0, id, 1, name, 2, abbrev);
+						window.clients_jobs.append(out iter, null);
+						window.clients_jobs.set(iter,
+							0, id,
+							1, name,
+							2, abbrev,
+							3, name
+						);
 
 						break;
 
@@ -89,41 +97,59 @@ namespace Timr {
 						break;
 
 				}
-			}while (ec == Sqlite.ROW);
+			} while (ec == Sqlite.ROW);
 
-			// Read jobs from db;
-			query = "SELECT * FROM jobs";
-			if ((ec = db.prepare_v2(query, -1, out stmt, null)) == 1){
-				stderr.printf("Could not read clients from database: %d: %s\n", ec, db.errmsg());
+			window.clients_jobs.foreach( (model, path, parent_iter) => {
+
+				if (window.clients_jobs.iter_depth(parent_iter) > 0){
+					return false;
+				}
+
+				int client_id; string client_name;
+				Gtk.TreeIter child_iter;
+				model.get(parent_iter, 0, out client_id, 1, out client_name);
+
+				stdout.printf("Iterating client: %s\n", client_name);
+
+				string query2 = "SELECT * FROM jobs WHERE client_id=%u order by abbrev".printf(client_id);
+				if ((ec = db.prepare_v2(query2, -1, out stmt, null)) == 1){
+					stderr.printf("Could not read clients from database: %d: %s\n", ec, db.errmsg());
+					return false;
+				}
+
+				cols = stmt.column_count();
+				do {
+					ec = stmt.step();
+					switch (ec){
+						case Sqlite.DONE:
+							break;
+						case Sqlite.ROW:
+
+							int id = stmt.column_int(0);
+							string name = stmt.column_text(1);
+							string abbrev = stmt.column_text(2);
+							
+							window.clients_jobs.append(out child_iter, parent_iter);
+							window.clients_jobs.set(child_iter,
+								0, id,
+								1, name,
+								2, abbrev,
+								3, "<b>%s</b> %s".printf(abbrev, name)
+							);
+							break;
+
+						default:
+							stderr.printf("Error: %d: %s\n", ec, db.errmsg());
+							break;
+
+					}
+				}while (ec == Sqlite.ROW);
+
 				return false;
-			}
-
-			cols = stmt.column_count();
-			do {
-				ec = stmt.step();
-				switch (ec){
-					case Sqlite.DONE:
-						break;
-					case Sqlite.ROW:
-
-						int id = stmt.column_int(0);
-						string name = stmt.column_text(1);
-						string abbrev = stmt.column_text(2);
-						int client_id = stmt.column_int(3);
-						
-						window.jobs.append(out iter);
-						window.jobs.set(iter, 0, id, 1, name, 2, abbrev, 3, client_id, 4, "<b>%s</b> %s".printf(abbrev, name));
-						break;
-
-					default:
-						stderr.printf("Error: %d: %s\n", ec, db.errmsg());
-						break;
-
-				}
-			}while (ec == Sqlite.ROW);
+			});
 
 			// Read activities from db;
-			query = "SELECT a.id,a.description,a.job_id,a.begin,a.end,j.name,j.abbrev,c.name,c.abbrev FROM activities AS a LEFT JOIN jobs AS j ON j.id=a.job_id LEFT JOIN clients AS c ON c.id=j.client_id";
+			query = "SELECT a.id,a.description,a.job_id,a.begin,a.end,j.name,j.abbrev,c.name,c.abbrev FROM activities AS a LEFT JOIN jobs AS j ON j.id=a.job_id LEFT JOIN clients AS c ON c.id=j.client_id ORDER By a.begin DESC";
 			if ((ec = db.prepare_v2(query, -1, out stmt, null)) == 1){
 				stderr.printf("Could not read activities from database:%d: %s\n", ec, db.errmsg());
 				return false;
@@ -143,15 +169,40 @@ namespace Timr {
 						string begin_str = stmt.column_text(3);
 						string end_str = stmt.column_text(4);
 
-						Activity activity = new Activity.past(description, new DateTime.from_string(begin_str).get_datetime(), new DateTime.from_string(end_str).get_datetime());
+						var regex = /[\-\: ]/;
+						var date_parts = regex.split(begin_str);
+						GLib.DateTime begin = new GLib.DateTime.local(
+							int.parse(date_parts[0]),
+							int.parse(date_parts[1]),
+							int.parse(date_parts[2]),
+							int.parse(date_parts[3]),
+							int.parse(date_parts[4]),
+							int.parse(date_parts[5])
+						);
+						date_parts = regex.split(end_str);
+						GLib.DateTime end = new GLib.DateTime.local(
+							int.parse(date_parts[0]),
+							int.parse(date_parts[1]),
+							int.parse(date_parts[2]),
+							int.parse(date_parts[3]),
+							int.parse(date_parts[4]),
+							int.parse(date_parts[5])
+						);
+
+						Activity activity = new Activity.past(description.length > 0 ? description : "Unknown activity", begin, end);
+						activity.job_name = (job_id > 0) ? "<b>%s</b> %s".printf(stmt.column_text(6), stmt.column_text(5)) : "Unknown job";
+
+						stdout.printf("Timespan formatted: %s\n", activity.get_timespan_formatted());
 
 						window.activities.append(out iter);
 						window.activities.set(iter,
 							0, id,
-							1, description,
+							1, activity.description,
 							2, job_id,
 							3, activity.get_duration(),
-							4, activity.get_duration_nice()
+							4, activity.get_duration_nice(),
+							7, activity.get_timespan_formatted(),
+							8, activity.job_name
 						);
 						break;
 					default:
@@ -162,6 +213,5 @@ namespace Timr {
 
 			return true;
 		}
-
 	}
 }

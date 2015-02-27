@@ -27,6 +27,19 @@
 		</columns>
 	</object>
 
+	<object class="GtkTreeStore" id="clients_jobs">
+		<columns>
+			<!-- 0 Database ID -->
+			<column type="gint" />
+			<!-- 1 Name -->
+			<column type="gchararray" />
+			<!-- 2 Abbrev -->
+			<column type="gchararray" />
+			<!-- 3 Display Name -->
+			<column type="gchararray" />
+		</columns>
+	</object>
+
 	<object class="GtkListStore" id="clients">
 		<columns>
 			<!-- 0 Database ID -->
@@ -58,192 +71,250 @@
 		<property name="default-width">800</property>
 		<property name="default-height">600</property>
 
-			<child type="titlebar">
-				<object class="GtkHeaderBar" id="header">
-					<property name="visible">True</property>
-					<property name="show-close-button">True</property>
-					<property name="has-subtitle">False</property>
+		<child type="titlebar">
+			<object class="GtkHeaderBar" id="header">
+				<property name="visible">True</property>
+				<property name="show-close-button">True</property>
+				<property name="has-subtitle">False</property>
 
- 					<child type="title">
- 						<object class="GtkStackSwitcher" id="tabs">
- 							<property name="visible">True</property>
- 							<property name="stack">stack</property>
- 						</object>
-					</child>
+					<child type="title">
+						<object class="GtkStackSwitcher" id="tabs">
+							<property name="visible">True</property>
+							<property name="stack">stack</property>
+						</object>
+				</child>
 
-					<child>
-						<object class="GtkEntry" id="activity_entry">
-							<property name="visible">True</property>
-							<property name="placeholder-text">What are you working on?</property>
-						</object>
-						<packing>
-							<property name="pack-type">start</property>
-						</packing>
-					</child>
-					<child>
-						<object class="GtkComboBox" id="job_combobox">
-							<property name="visible">True</property>
-							<property name="model">jobs</property>
-							<child>
-								<object class="GtkCellRendererText" />
-								<attributes>
-									<attribute name="markup">4</attribute>
-								</attributes>
-								<packing>
-									<property name="pack-type">start</property>
-								</packing>
-							</child>
-						</object>
-						<packing>
-							<property name="pack-type">start</property>
-						</packing>
-					</child>
-					<child>
-						<object class="GtkLabel" id="elapsed_label">
-							<property name="visible">True</property>
-							<property name="label">0 sec</property>
-						</object>
-						<packing>
-							<property name="pack-type">start</property>
-						</packing>
-					</child>
-					<child>
-						<object class="GtkButton" id="timer_button">
-							<property name="visible">True</property>
-							<property name="label">Start timer</property>
-							<signal name="clicked" handler="on_timer_toggle_button_clicked" />
-						</object>
-						<packing>
-							<property name="pack-type">start</property>
-						</packing>
-					</child>
-				</object>
-			</child>
+			</object>
+		</child>
+		<child>
+			<object class="GtkBox">
+				<property name="visible">True</property>
+				<property name="orientation">vertical</property>
 
-			<child>
-				<object class="GtkStack" id="stack">
-					<property name="visible">True</property>
-					<child>
-						<object class="GtkTreeView" id="activities_treeview">
-							<property name="visible">True</property>
-							<property name="model">activities</property>
-							<property name="headers-clickable">True</property>
-							<property name="rules-hint">True</property>
-							<signal name="row-activated" handler="on_activities_treeview_row_activated" />
-							<child>
-								<object class="GtkTreeViewColumn" id="description">
-									<property name="title">Description</property>
-									<property name="clickable">True</property>
-									<property name="resizable">True</property>
-									<property name="sort-column-id">-1</property>
-									<property name="min-width">400</property>
-									<child>
-										<object class="GtkCellRendererText" />
-										<attributes>
-											<attribute name="text">1</attribute>
-										</attributes>
-									</child>
-								</object>
-							</child>
-							<child>
-								<object class="GtkTreeViewColumn" id="job">
-									<property name="title">Job</property>
-									<property name="clickable">True</property>
-									<property name="resizable">True</property>
-									<property name="sort-column-id">-1</property>
-									<property name="min-width">200</property>
-									<child>
-										<object class="GtkCellRendererText" />
-										<attributes>
-											<attribute name="text">2</attribute>
-										</attributes>
-									</child>
-								</object>
-							</child>
-							<child>
-								<object class="GtkTreeViewColumn" id="duration">
-									<property name="title">Duration</property>
-									<property name="clickable">True</property>
-									<property name="resizable">True</property>
-									<property name="sort-column-id">-1</property>
-									<child>
-										<object class="GtkCellRendererText" />
-										<attributes>
-											<attribute name="markup">4</attribute>
-										</attributes>
-									</child>
-								</object>
-							</child>
-							<child>
-								<object class="GtkTreeViewColumn" id="timespan">
-									<property name="title">Timespan</property>
-									<property name="clickable">True</property>
-									<property name="resizable">True</property>
-									<property name="sort-column-id">-1</property>
-									<child>
-										<object class="GtkCellRendererText" />
-										<attributes>
-											<attribute name="markup">6</attribute>
-										</attributes>
-									</child>
-								</object>
-							</child>
-						</object>
-						<packing>
-							<property name="name">activities</property>
-							<property name="title" translatable="yes">Activities</property>
-						</packing>
-					</child>
+<!-- 				<child>
+					<object class="GtkInfoBar">
+						<property name="visible">True</property>
+						<child name="content_area">
+							<object class="GtkLabel">
+								<property name="visible">True</property>
+								<property name="label">This is the message</property>
+							</object>
+						</child>
+						<child name="action_area">
+							<object class="GtkButton" id="info_bar_ok_button">
+								<property name="visible">True</property>
+								<property name="label">OK</property>
+							</object>
+						</child>
 
-					<child>
-						<object class="GtkTreeView" id="clients_treeview">
-							<property name="headers-clickable">True</property>
-							<property name="visible">True</property>
-							<property name="model">clients</property>
-							<property name="rules-hint">True</property>
-							<signal name="row-activated" handler="on_client_treeview_row_activated" />
-							<child>
-								<object class="GtkTreeViewColumn" id="client_name">
-									<property name="title">Name</property>
-									<property name="clickable">True</property>
-									<property name="resizable">True</property>
-									<property name="sort-column-id">1</property>
-									<child>
-										<object class="GtkCellRendererText">
-											<property name="editable">True</property>
-											<signal name="edited" handler="on_client_treeview_name_column_edited" />
-										</object>
-										<attributes>
-											<attribute name="text">1</attribute>
-										</attributes>
-									</child>
-								</object>
-							</child>
-							<child>
-								<object class="GtkTreeViewColumn" id="client_abbrev">
-									<property name="title">Abbrev</property>
-									<property name="clickable">True</property>
-									<property name="resizable">True</property>
-									<property name="sort-column-id">2</property>
-									<child>
-										<object class="GtkCellRendererText">
-											<property name="editable">True</property>
-											<signal name="edited" handler="on_client_treeview_abbrev_column_edited" />
-										</object>
-										<attributes>
-											<attribute name="text">2</attribute>
-										</attributes>
-									</child>
-								</object>
-							</child>
-						</object>
+ 						<action-widgets>
+							<action-widget response="0">info_bar_ok_button</action-widget>
+						</action-widgets>
+					</object>
+				</child>
+ -->
+				<child>
+					<object class="GtkStack" id="stack">
+						<property name="visible">True</property>
+						<child>
+							<object class="GtkBox">
+								<property name="visible">True</property>
+								<property name="orientation">vertical</property>
+								<property name="expand">True</property>
+								<property name="fill">False</property>
+								<property name="spacing">20</property>
+								<child>
 
-						<packing>
-							<property name="name">clients_jobs</property>
-							<property name="title" translatable="yes">Clients &amp; Jobs</property>
-						</packing>
-					</child>
-				</object>
-			</child>
+									<object class="GtkAlignment">
+										<property name="visible">True</property>
+										<property name="xalign">0.5</property>
+										<property name="yalign">0.5</property>
+										<property name="xscale">0</property>
+										<property name="yscale">0</property>
+										<child>
+											<object class="GtkBox">
+												<property name="visible">True</property>
+												<property name="orientation">horizontal</property>
+												<property name="expand">False</property>
+												<property name="fill">False</property>
+												<child>
+													<object class="GtkEntry" id="activity_entry">
+														<property name="visible">True</property>
+														<property name="placeholder-text">What are you working on?</property>
+													</object>
+													<packing>
+														<property name="pack-type">start</property>
+													</packing>
+												</child>
+												<child>
+													<object class="GtkComboBox" id="job_combobox">
+														<property name="visible">True</property>
+														<property name="model">clients_jobs</property>
+														<child>
+															<object class="GtkCellRendererText" />
+															<attributes>
+																<attribute name="markup">3</attribute>
+															</attributes>
+															<packing>
+																<property name="pack-type">start</property>
+															</packing>
+														</child>
+													</object>
+													<packing>
+														<property name="pack-type">start</property>
+													</packing>
+												</child>
+												<child>
+													<object class="GtkLabel" id="elapsed_label">
+														<property name="visible">True</property>
+														<property name="label">0 sec</property>
+													</object>
+													<packing>
+														<property name="pack-type">start</property>
+													</packing>
+												</child>
+												<child>
+													<object class="GtkButton" id="timer_button">
+														<property name="visible">True</property>
+														<property name="label">Start timer</property>
+														<signal name="clicked" handler="on_timer_toggle_button_clicked" />
+													</object>
+													<packing>
+														<property name="pack-type">start</property>
+													</packing>
+												</child>
+											</object>
+										</child>
+									</object>
+								</child>
+								<child>
+									<object class="GtkTreeView" id="activities_treeview">
+										<property name="visible">True</property>
+										<property name="model">activities</property>
+										<property name="headers-clickable">True</property>
+										<property name="rules-hint">True</property>
+										<signal name="row-activated" handler="on_activities_treeview_row_activated" />
+										<child>
+											<object class="GtkTreeViewColumn" id="description">
+												<property name="title">Description</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">-1</property>
+												<child>
+													<object class="GtkCellRendererText" />
+													<attributes>
+														<attribute name="markup">1</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+										<child>
+											<object class="GtkTreeViewColumn" id="job">
+												<property name="title">Job</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">-1</property>
+												<child>
+													<object class="GtkCellRendererText" />
+													<attributes>
+														<attribute name="markup">8</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+										<child>
+											<object class="GtkTreeViewColumn" id="duration">
+												<property name="title">Duration</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">-1</property>
+												<child>
+													<object class="GtkCellRendererText" />
+													<attributes>
+														<attribute name="markup">4</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+										<child>
+											<object class="GtkTreeViewColumn" id="timespan">
+												<property name="title">Timespan</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">-1</property>
+												<child>
+													<object class="GtkCellRendererText" />
+													<attributes>
+														<attribute name="markup">7</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+									</object>
+								</child>
+							</object>
+							<packing>
+								<property name="name">activities</property>
+								<property name="title" translatable="yes">Activities</property>
+							</packing>
+						</child>
+
+						<child>
+							<object class="GtkScrolledWindow">
+								<property name="visible">True</property>
+								<child>
+									<object class="GtkTreeView" id="clients_treeview">
+										<property name="headers-clickable">True</property>
+										<property name="visible">True</property>
+										<property name="model">clients_jobs</property>
+										<property name="rules-hint">True</property>
+										<signal name="row-activated" handler="on_client_treeview_row_activated" />
+										<child>
+											<object class="GtkTreeViewColumn" id="client_name">
+												<property name="title">Name</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">1</property>
+												<child>
+													<object class="GtkCellRendererText">
+														<property name="editable">True</property>
+														<signal name="edited" handler="on_client_treeview_name_column_edited" />
+													</object>
+													<attributes>
+														<attribute name="text">1</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+										<child>
+											<object class="GtkTreeViewColumn" id="client_abbrev">
+												<property name="title">Abbrev</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">2</property>
+												<child>
+													<object class="GtkCellRendererText">
+														<property name="editable">True</property>
+														<signal name="edited" handler="on_client_treeview_abbrev_column_edited" />
+													</object>
+													<attributes>
+														<attribute name="text">2</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+									</object>
+								</child>
+							</object>
+
+							<packing>
+								<property name="name">clients_jobs</property>
+								<property name="title" translatable="yes">Clients &amp; Jobs</property>
+							</packing>
+						</child>
+					</object>
+				</child>
+			</object>
+		</child>
 	</template>
 </interface>

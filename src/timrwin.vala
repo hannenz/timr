@@ -24,6 +24,9 @@ namespace Timr {
 		[GtkChild]
 		public Gtk.ListStore jobs;
 
+		[GtkChild]
+		public Gtk.TreeStore clients_jobs;
+
 		private GLib.Timer timer;
 
 		private bool timer_running = false;
@@ -35,7 +38,8 @@ namespace Timr {
 		private Gdk.RGBA white;
 
 		public signal void activity_stopped(Activity a);
-		public signal void client_edited(string query);
+		public signal void update_database(string query);
+		//public signal void client_edited(string query);
 
 		public ApplicationWindow (Timr application) {
 			GLib.Object (application:application);
@@ -124,11 +128,7 @@ namespace Timr {
 			clients.set(iter, 1, new_text);
 
 			string query = "UPDATE clients SET name='%s' WHERE id=%u\n".printf(new_text, id);
-			client_edited(query);
-			// string errormsg;
-			// if ((ec = db.exec(query, null, out errormsg)) != Sqlite.OK){
-			// 	stderr.printf("Error writing client record: %d: %s\n", ec, errormsg);
-			// }
+			update_database(query);
 		}
 
 		[GtkCallback]
@@ -143,11 +143,7 @@ namespace Timr {
 
 			string query = "UPDATE clients SET abbrev='%s' WHERE id=%u\n".printf(new_text, id);
 
-			client_edited(query);
-			// string errormsg;
-			// if ((ec = db.exec(query, null, out errormsg)) != Sqlite.OK){
-			// 	stderr.printf("Error writing client record: %d: %s\n", ec, errormsg);
-			// }
+			update_database(query);
 		}
 
 		[GtkCallback]
@@ -174,32 +170,42 @@ namespace Timr {
 		}
 
 		private void  timer_stop(){
+				Gtk.TreeIter iter;
+				int job_id = 0;
+				string job_display_name = "unknown job", job_name, job_abbrev;
+
 				this.activity.stop();
 
 				this.activity.description = activity_entry.get_text();
-//				this.activity.project = job_combobox.get_active_text();
+				if (job_combobox.get_active_iter(out iter)){
+					if (clients_jobs.iter_depth(iter) > 0){
+						clients_jobs.get(iter, 0, out job_id, 1, out job_name, 2, out job_abbrev, 3, out job_display_name);
+					}
+				}
 
+				this.activity.job_id = job_id;
+				this.activity.job_name = job_display_name;
 				timer.stop();
 				timer_running = false;
 				timer_button.set_label("Start timer");
 				timer_button.override_background_color(Gtk.StateFlags.NORMAL, green);
 				timer_button.override_color(Gtk.StateFlags.NORMAL, white);
 
-				Gtk.TreeIter iter;
-				this.activities.append(out iter);
+				this.activities.prepend(out iter);
 				this.activities.set(iter,
 					1, this.activity.description,
 					2, this.activity.job_id,
 					3, this.activity.get_duration(),
 					4, this.activity.get_duration_nice(),
-					// 4, time0.to_unix(),
-					// 5, time1.to_unix(),
-					6, this.activity.get_timespan_formatted()
+					// 5, time0.to_unix(),
+					// 6, time1.to_unix(),
+					7, this.activity.get_timespan_formatted(),
+					8, this.activity.job_name
 				);
 
 				// Reset UI
 				elapsed_label.set_text("0 sec");
-//				activity_entry.set_text("");
+				activity_entry.set_text("");
 				job_combobox.set_active(0);
 
 				// Emit signal

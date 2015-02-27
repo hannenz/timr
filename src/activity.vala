@@ -14,10 +14,11 @@ namespace Timr {
 
 		public int job_id;
 
+		public string job_name;
+
 		public string client;
 
 		public string type;
-
 		
 		public 	Activity() {
 
@@ -30,6 +31,9 @@ namespace Timr {
 			this.is_running = false;
 			this.begin = begin;
 			this.end = end;
+			this.description = description;
+
+			stdout.printf("Creating activity: %s - %s\n", this.begin.to_string(), this.end.to_string());
 		}
 
 		public void stop () {
@@ -41,6 +45,8 @@ namespace Timr {
 		public string get_duration_nice () {
 			string duration_nice;
 			int duration = (int)this.end.difference(this.begin) / 1000000;
+
+			stdout.printf("Duration is %u\n", duration);
 
 			int hours = duration / 3600;
 			int minutes = duration / 60 % 60;
