@@ -4,7 +4,7 @@ namespace Timr {
 
 		private GLib.TimeZone timezone;
 
-		private GLib.DateTime start;
+		private GLib.DateTime begin;
 
 		private GLib.DateTime end;
 
@@ -12,7 +12,7 @@ namespace Timr {
 
 		public string description;
 
-		public string project;
+		public int job_id;
 
 		public string client;
 
@@ -22,8 +22,14 @@ namespace Timr {
 		public 	Activity() {
 
 			this.timezone = new GLib.TimeZone.local();
-			this.start = new GLib.DateTime.now(this.timezone);
+			this.begin = new GLib.DateTime.now(this.timezone);
 			this.is_running = true;
+		}
+
+		public Activity.past(string description, GLib.DateTime begin, GLib.DateTime end) {
+			this.is_running = false;
+			this.begin = begin;
+			this.end = end;
 		}
 
 		public void stop () {
@@ -34,7 +40,7 @@ namespace Timr {
 
 		public string get_duration_nice () {
 			string duration_nice;
-			int duration = (int)this.end.difference(this.start) / 1000000;
+			int duration = (int)this.end.difference(this.begin) / 1000000;
 
 			int hours = duration / 3600;
 			int minutes = duration / 60 % 60;
@@ -50,20 +56,20 @@ namespace Timr {
 		}
 
 		public int get_duration () {
-			return (int)this.end.difference(this.start) / 1000000;
+			return (int)this.end.difference(this.begin) / 1000000;
 		}
 
 		public string get_timespan_formatted () {
 			
 			string timespan = "%s - %s".printf(
-				this.start.format("%H:%M"),
+				this.begin.format("%H:%M"),
 				this.end.format("%H:%M")
 			);
 			return timespan;
 		}
 
-		public string get_start_datetime() {
-			return this.start.format("%Y-%m-%d %T");
+		public string get_begin_datetime() {
+			return this.begin.format("%Y-%m-%d %T");
 		}
 
 		public string get_end_datetime() {

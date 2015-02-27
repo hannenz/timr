@@ -4,19 +4,51 @@
 
 	<object class="GtkListStore" id="activities">
 		<columns>
-			<!-- description -->
-			<column type="gchararray" />
-			<!-- project name -->
-			<column type="gchararray" />
-			<!-- duration (in seconds) -->
+			<!-- 0 Database ID -->
 			<column type="gint" />
-			<!-- duration nice -->
+			<!-- 1 description -->
 			<column type="gchararray" />
-			<!-- start (as UNIX timestamp) -->
+			<!-- 2 job ID -->
 			<column type="gint" />
-			<!-- end (as UNIX timestamp) -->
+			<!-- 3 duration (in seconds) -->
 			<column type="gint" />
-			<!-- timespan formatted -->
+			<!-- 4 duration nice -->
+			<column type="gchararray" />
+			<!-- 5 begin (as UNIX timestamp) -->
+			<column type="gint" />
+			<!-- 6 end (as UNIX timestamp) -->
+			<column type="gint" />
+			<!-- 7 timespan formatted -->
+			<column type="gchararray" />
+			<!-- 8 job name -->
+			<column type="gchararray" />
+			<!-- 9 client name -->
+			<column type="gchararray" />
+		</columns>
+	</object>
+
+	<object class="GtkListStore" id="clients">
+		<columns>
+			<!-- 0 Database ID -->
+			<column type="gint" />
+			<!-- 1 name -->
+			<column type="gchararray" />
+			<!-- 2 abbrev -->
+			<column type="gchararray" />
+		</columns>
+	</object>
+
+	<object class="GtkListStore" id="jobs">
+		<columns>
+			<!-- 0 Database ID -->
+			<column type="gint" />
+			<!-- 1 name -->
+			<column type="gchararray" />
+			<!-- 2 abbrev -->
+			<column type="gchararray" />
+			<!-- 3 client_id -->
+			<column type="gint" />
+			<!-- 4 Display Name -->
 			<column type="gchararray" />
 		</columns>
 	</object>
@@ -32,13 +64,12 @@
 					<property name="show-close-button">True</property>
 					<property name="has-subtitle">False</property>
 
-<!-- 					<child type="title">
-						<object class="GtkLabel">
-							<property name="visible">True</property>
-							<property name="label">Timr Time Tracker</property>
-						</object>
+ 					<child type="title">
+ 						<object class="GtkStackSwitcher" id="tabs">
+ 							<property name="visible">True</property>
+ 							<property name="stack">stack</property>
+ 						</object>
 					</child>
- -->
 
 					<child>
 						<object class="GtkEntry" id="activity_entry">
@@ -50,15 +81,18 @@
 						</packing>
 					</child>
 					<child>
-						<object class="GtkComboBoxText" id="projects_combobox">
+						<object class="GtkComboBox" id="job_combobox">
 							<property name="visible">True</property>
-							<items>
-								<item> </item>
-								<item>ZSG_14003 Website</item>
-								<item>HALMA_15001 HALMA intern</item>
-								<item>HILAG_15001 Websitepflege</item>
-								<item>BON_14062 Blätterkatalog</item>
-							</items>
+							<property name="model">jobs</property>
+							<child>
+								<object class="GtkCellRendererText" />
+								<attributes>
+									<attribute name="markup">4</attribute>
+								</attributes>
+								<packing>
+									<property name="pack-type">start</property>
+								</packing>
+							</child>
 						</object>
 						<packing>
 							<property name="pack-type">start</property>
@@ -74,7 +108,7 @@
 						</packing>
 					</child>
 					<child>
-						<object class="GtkButton">
+						<object class="GtkButton" id="timer_button">
 							<property name="visible">True</property>
 							<property name="label">Start timer</property>
 							<signal name="clicked" handler="on_timer_toggle_button_clicked" />
@@ -87,16 +121,15 @@
 			</child>
 
 			<child>
-				<object class="GtkBox" id="content_box">
+				<object class="GtkStack" id="stack">
 					<property name="visible">True</property>
-					<property name="orientation">vertical</property>
 					<child>
 						<object class="GtkTreeView" id="activities_treeview">
 							<property name="visible">True</property>
 							<property name="model">activities</property>
 							<property name="headers-clickable">True</property>
 							<property name="rules-hint">True</property>
-							<property name="odd-row-color">#e0e0e0</property>
+							<signal name="row-activated" handler="on_activities_treeview_row_activated" />
 							<child>
 								<object class="GtkTreeViewColumn" id="description">
 									<property name="title">Description</property>
@@ -107,14 +140,14 @@
 									<child>
 										<object class="GtkCellRendererText" />
 										<attributes>
-											<attribute name="text">0</attribute>
+											<attribute name="text">1</attribute>
 										</attributes>
 									</child>
 								</object>
 							</child>
 							<child>
-								<object class="GtkTreeViewColumn" id="project">
-									<property name="title">Project</property>
+								<object class="GtkTreeViewColumn" id="job">
+									<property name="title">Job</property>
 									<property name="clickable">True</property>
 									<property name="resizable">True</property>
 									<property name="sort-column-id">-1</property>
@@ -122,7 +155,7 @@
 									<child>
 										<object class="GtkCellRendererText" />
 										<attributes>
-											<attribute name="text">1</attribute>
+											<attribute name="text">2</attribute>
 										</attributes>
 									</child>
 								</object>
@@ -136,7 +169,7 @@
 									<child>
 										<object class="GtkCellRendererText" />
 										<attributes>
-											<attribute name="markup">3</attribute>
+											<attribute name="markup">4</attribute>
 										</attributes>
 									</child>
 								</object>
@@ -156,6 +189,59 @@
 								</object>
 							</child>
 						</object>
+						<packing>
+							<property name="name">activities</property>
+							<property name="title" translatable="yes">Activities</property>
+						</packing>
+					</child>
+
+					<child>
+						<object class="GtkTreeView" id="clients_treeview">
+							<property name="headers-clickable">True</property>
+							<property name="visible">True</property>
+							<property name="model">clients</property>
+							<property name="rules-hint">True</property>
+							<signal name="row-activated" handler="on_client_treeview_row_activated" />
+							<child>
+								<object class="GtkTreeViewColumn" id="client_name">
+									<property name="title">Name</property>
+									<property name="clickable">True</property>
+									<property name="resizable">True</property>
+									<property name="sort-column-id">1</property>
+									<child>
+										<object class="GtkCellRendererText">
+											<property name="editable">True</property>
+											<signal name="edited" handler="on_client_treeview_name_column_edited" />
+										</object>
+										<attributes>
+											<attribute name="text">1</attribute>
+										</attributes>
+									</child>
+								</object>
+							</child>
+							<child>
+								<object class="GtkTreeViewColumn" id="client_abbrev">
+									<property name="title">Abbrev</property>
+									<property name="clickable">True</property>
+									<property name="resizable">True</property>
+									<property name="sort-column-id">2</property>
+									<child>
+										<object class="GtkCellRendererText">
+											<property name="editable">True</property>
+											<signal name="edited" handler="on_client_treeview_abbrev_column_edited" />
+										</object>
+										<attributes>
+											<attribute name="text">2</attribute>
+										</attributes>
+									</child>
+								</object>
+							</child>
+						</object>
+
+						<packing>
+							<property name="name">clients_jobs</property>
+							<property name="title" translatable="yes">Clients &amp; Jobs</property>
+						</packing>
 					</child>
 				</object>
 			</child>
