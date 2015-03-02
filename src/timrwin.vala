@@ -16,7 +16,7 @@ namespace Timr {
 		private Gtk.ComboBox job_combobox;
 
 		[GtkChild]
-		public Gtk.ListStore activities;
+		public Gtk.TreeStore activities;
 
 		[GtkChild]
 		public Gtk.ListStore clients;
@@ -26,6 +26,9 @@ namespace Timr {
 
 		[GtkChild]
 		public Gtk.TreeStore clients_jobs;
+
+		[GtkChild]
+		public Gtk.TreeView activities_treeview;
 
 		private GLib.Timer timer;
 
@@ -39,7 +42,7 @@ namespace Timr {
 
 		public signal void activity_stopped(Activity a);
 		public signal void update_database(string query);
-		//public signal void client_edited(string query);
+		public signal void client_edited(string query);
 
 		public ApplicationWindow (Timr application) {
 			GLib.Object (application:application);
@@ -69,9 +72,12 @@ namespace Timr {
 			green = Gdk.RGBA();
 			white = Gdk.RGBA();
 			red.parse("#C00000");
-			green.parse("#00C000");
+			green.parse("#2C7500");
 			white.parse("#FFFFFF");
 
+			timer_button.override_background_color(Gtk.StateFlags.NORMAL, green);
+			timer_button.override_color(Gtk.StateFlags.NORMAL, white);
+			timer_button.grab_default();
 		}
 
 		private bool update_timer() {
@@ -113,7 +119,7 @@ namespace Timr {
 
 		[GtkCallback]
 		public void on_client_treeview_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column) {
-			stdout.printf("Row has been activated\n");
+//			stdout.printf("Row has been activated\n");
 		}
 
 		[GtkCallback]
@@ -185,23 +191,26 @@ namespace Timr {
 
 				this.activity.job_id = job_id;
 				this.activity.job_name = job_display_name;
+				this.activity.text = "<b>" + job_display_name + "</b>\n" + activity.description;
 				timer.stop();
 				timer_running = false;
 				timer_button.set_label("Start timer");
 				timer_button.override_background_color(Gtk.StateFlags.NORMAL, green);
 				timer_button.override_color(Gtk.StateFlags.NORMAL, white);
 
-				this.activities.prepend(out iter);
-				this.activities.set(iter,
-					1, this.activity.description,
-					2, this.activity.job_id,
-					3, this.activity.get_duration(),
-					4, this.activity.get_duration_nice(),
-					// 5, time0.to_unix(),
-					// 6, time1.to_unix(),
-					7, this.activity.get_timespan_formatted(),
-					8, this.activity.job_name
-				);
+
+
+				// this.activities.prepend(out iter, null);
+				// this.activities.set(iter,
+				// 	1, this.activity.description,
+				// 	2, this.activity.job_id,
+				// 	3, this.activity.get_duration(),
+				// 	4, this.activity.get_duration_nice(),
+				// 	// 5, time0.to_unix(),
+				// 	// 6, time1.to_unix(),
+				// 	7, this.activity.get_timespan_formatted(),
+				// 	8, this.activity.job_name
+				// );
 
 				// Reset UI
 				elapsed_label.set_text("0 sec");

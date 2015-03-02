@@ -37,17 +37,19 @@ namespace Timr {
 					activity.get_end_datetime()
 				);
 
-				stdout.printf("%s\n", query);
-
 				string error_message;
 				int ec = this.db.exec(query, null, out error_message);
 				if (ec != Sqlite.OK){
 					stderr.printf("Error: %s\n", error_message);
 				}
 
+				insert_activity(activity, (int)db.last_insert_rowid());
+
 			});
 
 			load_data();
+
+			window.activities_treeview.expand_row(new TreePath.first(), true);
 		}
 
 		private bool load_data() {
@@ -64,7 +66,7 @@ namespace Timr {
 			}
 
 			// Read clients from db;
-			query = "SELECT * FROM clients";
+			query = "SELECT * FROM clients ORDER BY name ASC";
 			if ((ec = db.prepare_v2(query, -1, out stmt, null)) == 1){
 				stderr.printf("Could not read clients from database: %d: %s\n", ec, db.errmsg());
 				return false;
@@ -109,8 +111,6 @@ namespace Timr {
 				Gtk.TreeIter child_iter;
 				model.get(parent_iter, 0, out client_id, 1, out client_name);
 
-				stdout.printf("Iterating client: %s\n", client_name);
-
 				string query2 = "SELECT * FROM jobs WHERE client_id=%u order by abbrev".printf(client_id);
 				if ((ec = db.prepare_v2(query2, -1, out stmt, null)) == 1){
 					stderr.printf("Could not read clients from database: %d: %s\n", ec, db.errmsg());
@@ -149,7 +149,7 @@ namespace Timr {
 			});
 
 			// Read activities from db;
-			query = "SELECT a.id,a.description,a.job_id,a.begin,a.end,j.name,j.abbrev,c.name,c.abbrev FROM activities AS a LEFT JOIN jobs AS j ON j.id=a.job_id LEFT JOIN clients AS c ON c.id=j.client_id ORDER By a.begin DESC";
+			query = "SELECT a.id,a.description,a.job_id,a.begin,a.end,j.name,j.abbrev,c.name,c.abbrev FROM activities AS a LEFT JOIN jobs AS j ON j.id=a.job_id LEFT JOIN clients AS c ON c.id=j.client_id ORDER By a.begin ASC";
 			if ((ec = db.prepare_v2(query, -1, out stmt, null)) == 1){
 				stderr.printf("Could not read activities from database:%d: %s\n", ec, db.errmsg());
 				return false;
@@ -189,22 +189,17 @@ namespace Timr {
 							int.parse(date_parts[5])
 						);
 
+
 						Activity activity = new Activity.past(description.length > 0 ? description : "Unknown activity", begin, end);
-						activity.job_name = (job_id > 0) ? "<b>%s</b> %s".printf(stmt.column_text(6), stmt.column_text(5)) : "Unknown job";
+						activity.job_id = job_id;
 
-						stdout.printf("Timespan formatted: %s\n", activity.get_timespan_formatted());
+						// FIXME: Move this into activity constructor ?
+						activity.job_name = (job_id > 0) ? "<b>%s %s</b>".printf(stmt.column_text(6), stmt.column_text(5)) : "<b>Unknown job</b>";
+						activity.text = activity.job_name + "\n" + stmt.column_text(1);
 
-						window.activities.append(out iter);
-						window.activities.set(iter,
-							0, id,
-							1, activity.description,
-							2, job_id,
-							3, activity.get_duration(),
-							4, activity.get_duration_nice(),
-							7, activity.get_timespan_formatted(),
-							8, activity.job_name
-						);
+						insert_activity(activity, id);
 						break;
+
 					default:
 						stderr.printf("Error:%d: %s\n", ec, db.errmsg());
 						break;
@@ -212,6 +207,101 @@ namespace Timr {
 			} while (ec == Sqlite.ROW);
 
 			return true;
+		}
+
+		private void preferences () { 
+
+		}
+
+		public override void startup () {
+			base.startup();
+			var action = new GLib.SimpleAction ("preferences", null);
+			action.activate.connect(preferences);
+			add_action (action);
+
+			action = new GLib.SimpleAction ("quit", null);
+			action.activate.connect (quit);
+			add_action (action);
+			add_accelerator ("<Ctrl>Q", "app.quit", null);
+
+			var builder = new Gtk.Builder.from_resource ("/de/hannenz/timr/app_menu.ui");
+			var app_menu = builder.get_object ("appmenu") as GLib.MenuModel;
+
+			set_app_menu (app_menu);
+		}
+
+
+		public bool insert_activity(Activity activity, int id) {
+
+			Gtk.TreeIter? iter, parent_iter;
+			var date = activity.get_date();
+
+			parent_iter = null;
+			window.activities.foreach( (model, path, iter) => {
+				string d;
+				model.get(iter, 10, out d);
+				if (date == d){
+					if (model.iter_parent(out parent_iter, iter)){
+						return true;
+					}
+				}
+				return false;
+			});
+
+			if (parent_iter == null) {
+				window.activities.prepend(out parent_iter, null);
+				window.activities.set(parent_iter, 
+					0, 0,
+					1, "<b>" + nice_date(activity.get_begin()) + "</b>",
+					2, 0,
+					3, "",
+					4, "",
+					7, "",
+					8, "",
+					10, date,
+					11, "<b>" + nice_date(activity.get_begin()) + "</b>"
+				);
+			}
+
+			window.activities.prepend(out iter, parent_iter);
+			window.activities.set(iter,
+				0, id,
+				1, activity.description,
+				2, activity.job_id,
+				3, activity.get_duration(),
+				4, activity.get_duration_nice(),
+				7, activity.get_timespan_formatted(),
+				8, activity.job_name,
+				10, date,
+				11, activity.text
+			);
+
+			return true;
+		}
+
+		private string nice_date(GLib.DateTime date) {
+			var today = new GLib.DateTime.now_local();
+			var yesterday = today.add_days(-1);
+
+			if (
+				today.get_year() == date.get_year() &&
+				today.get_month() == date.get_month() &&
+				today.get_day_of_month() == date.get_day_of_month()
+			)
+			{
+				return "Today";
+			}
+			if (
+				yesterday.get_year() == date.get_year() &&
+				yesterday.get_month() == date.get_month() &&
+				yesterday.get_day_of_month() == date.get_day_of_month()
+			)
+			{
+				return "Yesterday";
+			}
+
+			return date.format("%a, %d. %B %Y");
+
 		}
 	}
 }
