@@ -19,6 +19,8 @@ namespace Timr {
 		public string client;
 
 		public string type;
+
+		public string text;
 		
 		public 	Activity() {
 
@@ -32,8 +34,6 @@ namespace Timr {
 			this.begin = begin;
 			this.end = end;
 			this.description = description;
-
-			stdout.printf("Creating activity: %s - %s\n", this.begin.to_string(), this.end.to_string());
 		}
 
 		public void stop () {
@@ -45,8 +45,6 @@ namespace Timr {
 		public string get_duration_nice () {
 			string duration_nice;
 			int duration = (int)this.end.difference(this.begin) / 1000000;
-
-			stdout.printf("Duration is %u\n", duration);
 
 			int hours = duration / 3600;
 			int minutes = duration / 60 % 60;
@@ -80,6 +78,14 @@ namespace Timr {
 
 		public string get_end_datetime() {
 			return this.end.format("%Y-%m-%d %T");
+		}
+
+		public string get_date(){
+			return this.begin.format("%Y-%m-%d");
+		}
+
+		public DateTime get_begin() {
+			return this.begin;
 		}
 	}
 }

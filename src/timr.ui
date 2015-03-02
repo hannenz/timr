@@ -2,7 +2,7 @@
 <interface>
 	<requires lib="gtk+" version="3.12"/>
 
-	<object class="GtkListStore" id="activities">
+	<object class="GtkTreeStore" id="activities">
 		<columns>
 			<!-- 0 Database ID -->
 			<column type="gint" />
@@ -24,6 +24,11 @@
 			<column type="gchararray" />
 			<!-- 9 client name -->
 			<column type="gchararray" />
+			<!-- 10 The day of the activity in Y-m-d format-->
+			<column type="gchararray" />
+			<!-- 11 All info formatted into one multiline text -->
+			<column type="gchararray" />
+
 		</columns>
 	</object>
 
@@ -77,13 +82,70 @@
 				<property name="show-close-button">True</property>
 				<property name="has-subtitle">False</property>
 
-					<child type="title">
-						<object class="GtkStackSwitcher" id="tabs">
-							<property name="visible">True</property>
-							<property name="stack">stack</property>
-						</object>
+				<child>
+					<object class="GtkEntry" id="activity_entry">
+						<property name="visible">True</property>
+						<property name="placeholder-text">What are you working on?</property>
+						<property name="width-request">150</property>
+						<property name="activates=default">True</property>
+					</object>
+					<packing>
+						<property name="pack-type">start</property>
+					</packing>
 				</child>
-
+				<child>
+					<object class="GtkComboBox" id="job_combobox">
+						<property name="visible">True</property>
+						<property name="model">clients_jobs</property>
+						<property name="width-request">150</property>
+						<property name="add-tearoffs">True</property>
+<!-- 						<property name="has-entry">True</property>
+						<property name="entry-text-column">2</property>
+ -->
+						<child>
+							<object class="GtkCellRendererText" />
+							<attributes>
+								<attribute name="markup">3</attribute>
+							</attributes>
+							<packing>
+								<property name="pack-type">start</property>
+							</packing>
+						</child>
+					</object>
+					<packing>
+						<property name="pack-type">start</property>
+					</packing>
+				</child>
+				<child>
+					<object class="GtkLabel" id="elapsed_label">
+						<property name="visible">True</property>
+						<property name="label">0 sec</property>
+					</object>
+					<packing>
+						<property name="pack-type">start</property>
+					</packing>
+				</child>
+				<child>
+					<object class="GtkButton" id="timer_button">
+						<property name="visible">True</property>
+						<property name="label">Start timer</property>
+						<property name="relief">none</property>
+						<property name="can-default">True</property>
+						<signal name="clicked" handler="on_timer_toggle_button_clicked" />
+					</object>
+					<packing>
+						<property name="pack-type">start</property>
+					</packing>
+				</child>
+				<child>
+					<object class="GtkStackSwitcher" id="tabs">
+						<property name="visible">True</property>
+						<property name="stack">stack</property>
+					</object>
+					<packing>
+						<property name="pack-type">end</property>
+					</packing>
+				</child>
 			</object>
 		</child>
 		<child>
@@ -116,77 +178,10 @@
 				<child>
 					<object class="GtkStack" id="stack">
 						<property name="visible">True</property>
+						<property name="transition-type">slide-left-right</property>
 						<child>
-							<object class="GtkBox">
+							<object class="GtkScrolledWindow">
 								<property name="visible">True</property>
-								<property name="orientation">vertical</property>
-								<property name="expand">True</property>
-								<property name="fill">False</property>
-								<property name="spacing">20</property>
-								<child>
-
-									<object class="GtkAlignment">
-										<property name="visible">True</property>
-										<property name="xalign">0.5</property>
-										<property name="yalign">0.5</property>
-										<property name="xscale">0</property>
-										<property name="yscale">0</property>
-										<child>
-											<object class="GtkBox">
-												<property name="visible">True</property>
-												<property name="orientation">horizontal</property>
-												<property name="expand">False</property>
-												<property name="fill">False</property>
-												<child>
-													<object class="GtkEntry" id="activity_entry">
-														<property name="visible">True</property>
-														<property name="placeholder-text">What are you working on?</property>
-													</object>
-													<packing>
-														<property name="pack-type">start</property>
-													</packing>
-												</child>
-												<child>
-													<object class="GtkComboBox" id="job_combobox">
-														<property name="visible">True</property>
-														<property name="model">clients_jobs</property>
-														<child>
-															<object class="GtkCellRendererText" />
-															<attributes>
-																<attribute name="markup">3</attribute>
-															</attributes>
-															<packing>
-																<property name="pack-type">start</property>
-															</packing>
-														</child>
-													</object>
-													<packing>
-														<property name="pack-type">start</property>
-													</packing>
-												</child>
-												<child>
-													<object class="GtkLabel" id="elapsed_label">
-														<property name="visible">True</property>
-														<property name="label">0 sec</property>
-													</object>
-													<packing>
-														<property name="pack-type">start</property>
-													</packing>
-												</child>
-												<child>
-													<object class="GtkButton" id="timer_button">
-														<property name="visible">True</property>
-														<property name="label">Start timer</property>
-														<signal name="clicked" handler="on_timer_toggle_button_clicked" />
-													</object>
-													<packing>
-														<property name="pack-type">start</property>
-													</packing>
-												</child>
-											</object>
-										</child>
-									</object>
-								</child>
 								<child>
 									<object class="GtkTreeView" id="activities_treeview">
 										<property name="visible">True</property>
@@ -203,12 +198,12 @@
 												<child>
 													<object class="GtkCellRendererText" />
 													<attributes>
-														<attribute name="markup">1</attribute>
+														<attribute name="markup">11</attribute>
 													</attributes>
 												</child>
 											</object>
 										</child>
-										<child>
+	<!-- 										<child>
 											<object class="GtkTreeViewColumn" id="job">
 												<property name="title">Job</property>
 												<property name="clickable">True</property>
@@ -222,7 +217,7 @@
 												</child>
 											</object>
 										</child>
-										<child>
+	-->										<child>
 											<object class="GtkTreeViewColumn" id="duration">
 												<property name="title">Duration</property>
 												<property name="clickable">True</property>
@@ -313,6 +308,10 @@
 							</packing>
 						</child>
 					</object>
+					<packing>
+						<property name="expand">True</property>
+						<property name="fill">True</property>
+					</packing>
 				</child>
 			</object>
 		</child>
