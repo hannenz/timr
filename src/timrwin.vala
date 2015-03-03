@@ -174,7 +174,11 @@ namespace Timr {
 						activity_dialog.get_begin(),
 						activity_dialog.get_end()
 					);
+					activity.job_id = activity_dialog.get_job_id();
+					activity.job_name = activity_dialog.get_job_name();
+					activity.text = activity_dialog.get_text();
 
+					activity_stopped(activity);
 				}
 				activity_dialog.destroy();
 			});
