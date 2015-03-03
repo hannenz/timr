@@ -1,3 +1,5 @@
+using Gtk;
+
 namespace Timr {
 
 	[GtkTemplate (ui = "/de/hannenz/timr/timr.ui")]
@@ -29,6 +31,15 @@ namespace Timr {
 
 		[GtkChild]
 		public Gtk.TreeView activities_treeview;
+
+		[GtkChild]
+		public Gtk.InfoBar info_bar;
+
+		[GtkChild]
+		public Gtk.Label info_bar_primary_label;
+
+		[GtkChild]
+		public Gtk.ButtonBox info_bar_action_area;
 
 		private GLib.Timer timer;
 
@@ -99,6 +110,11 @@ namespace Timr {
 				elapsed_label.set_text(mssg);
 			}
 			return true;
+		}
+
+		[GtkCallback]
+		public void on_info_bar_response(int response) {
+			info_bar.hide();
 		}
 
 		[GtkCallback]
@@ -185,7 +201,25 @@ namespace Timr {
 			activity_dialog.run();
 		}
 
-		private void  timer_start(){
+		private void message (string message, Gtk.MessageType type) {
+			this.info_bar_primary_label.set_markup (message);
+			this.info_bar.message_type = type;
+			this.info_bar.show ();
+		}
+
+		public void error (string message) {
+			this.message (message, Gtk.MessageType.ERROR);
+		}
+
+		public void warning (string message) {
+			this.message (message, Gtk.MessageType.WARNING);
+		}
+
+		public void info (string message) {
+			this.message (message, Gtk.MessageType.INFO);
+		}
+
+		private void  timer_start () {
 
 				this.activity = new Activity();
 

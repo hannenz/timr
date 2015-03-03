@@ -1,7 +1,7 @@
 using Gtk;
 
 namespace Timr {
-	
+
 	[GtkTemplate (ui="/de/hannenz/timr/activity_dialog.ui")]
 	public class ActivityDialog : Gtk.Dialog {
 
@@ -31,13 +31,13 @@ namespace Timr {
 
 		private string job_display_name = null;
 
+		private ApplicationWindow parent_window;
 
 		public ActivityDialog (ApplicationWindow window, Gtk.TreeStore clients_jobs) {
 
 			GLib.Object (transient_for: window, use_header_bar: 0);
 
 			job_combobox.set_model(clients_jobs);
-
 		}
 
 		private void split_time(string str, out int hours, out int minutes) {
@@ -82,7 +82,7 @@ namespace Timr {
 				}
 			}
 			catch (Error e){
-				stderr.printf("Error: %s", e.message);
+				this.parent_window.error ("Error: " + e.message);
 				return false;
 			}
 			return true;

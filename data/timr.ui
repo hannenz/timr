@@ -28,7 +28,6 @@
 			<column type="gchararray" />
 			<!-- 11 All info formatted into one multiline text -->
 			<column type="gchararray" />
-
 		</columns>
 	</object>
 
@@ -163,28 +162,52 @@
 				<property name="visible">True</property>
 				<property name="orientation">vertical</property>
 
-<!-- 				<child>
-					<object class="GtkInfoBar">
-						<property name="visible">True</property>
-						<child name="content_area">
-							<object class="GtkLabel">
+ 				<child>
+					<object class="GtkInfoBar" id="info_bar">
+						<property name="visible">False</property>
+						<signal name="response" handler="on_info_bar_response" />
+
+						<child internal-child="content_area">
+							<object class="GtkBox">
 								<property name="visible">True</property>
-								<property name="label">This is the message</property>
+								<property name="orientation">vertical</property>
+								<property name="spacing">16</property>
+								<property name="border_width">8</property>
+								<property name="can_focus">False</property>
+								<child>
+									<object class="GtkLabel" id="info_bar_primary_label">
+										<property name="visible">True</property>
+										<property name="can_focus">True</property>
+										<property name="use-markup">True</property>
+										<property name="halign">GTK_ALIGN_START</property>
+										<property name="label" translatable="yes">This is the message</property>
+									</object>
+									<packing>
+										<property name="expand">False</property>
+										<property name="fill">True</property>
+									</packing>
+								</child>
 							</object>
 						</child>
-						<child name="action_area">
-							<object class="GtkButton" id="info_bar_ok_button">
-								<property name="visible">True</property>
-								<property name="label">OK</property>
+						<child internal-child="action_area">
+							<object class="GtkButtonBox" id="info_bar_action_area">
+								<child>
+									<object class="GtkButton" id="close_button">
+										<property name="visible">True</property>
+										<property name="label">Close</property>
+									</object>
+								</child>
 							</object>
 						</child>
 
+						<child type="action">
+						</child>
  						<action-widgets>
-							<action-widget response="0">info_bar_ok_button</action-widget>
+							<action-widget response="close">close_button</action-widget>
 						</action-widgets>
 					</object>
 				</child>
- -->
+
 				<child>
 					<object class="GtkStack" id="stack">
 						<property name="visible">True</property>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/de/hannenz/timr">
+    <file>timr.ui</file>
+    <file>app_menu.ui</file>
+    <file>activity_dialog.ui</file>
+  </gresource>
+</gresources>

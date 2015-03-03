@@ -12,6 +12,8 @@ namespace Timr {
 
 		public string description;
 
+		public Job job;
+
 		public int job_id;
 
 		public string job_name;
@@ -27,6 +29,13 @@ namespace Timr {
 			this.timezone = new GLib.TimeZone.local();
 			this.begin = new GLib.DateTime.now(this.timezone);
 			this.is_running = true;
+		}
+
+		public Activity.full(string description, Job job, DateTime begin, DateTime end){
+			this.description = description;
+			this.job = job;
+			this.begin = begin;
+			this.end = end;
 		}
 
 		public Activity.past(string description, GLib.DateTime begin, GLib.DateTime end) {
