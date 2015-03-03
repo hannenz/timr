@@ -101,8 +101,6 @@ namespace Timr {
 			return true;
 		}
 
-
-
 		[GtkCallback]
 		public void on_activities_treeview_row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
 
@@ -111,6 +109,8 @@ namespace Timr {
 
 			activities.get_iter(out iter, path);
 			activities.get(iter, 1, out description);
+
+			debug ("%u\n", activity.job_id);
 
 			activity_entry.set_text(description);
 			timer_start();
@@ -161,6 +161,24 @@ namespace Timr {
 			else {
 				timer_start();
 			}
+		}
+
+		[GtkCallback]
+		public void on_activity_add_button_clicked(Gtk.Button button) {
+			var activity_dialog = new ActivityDialog(this, clients_jobs);
+			activity_dialog.response.connect( (response) => {
+				if (response == Gtk.ResponseType.OK){
+
+					var activity = new Activity.past(
+						activity_dialog.get_description(),
+						activity_dialog.get_begin(),
+						activity_dialog.get_end()
+					);
+
+				}
+				activity_dialog.destroy();
+			});
+			activity_dialog.run();
 		}
 
 		private void  timer_start(){

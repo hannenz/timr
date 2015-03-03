@@ -3,5 +3,6 @@
   <gresource prefix="/de/hannenz/timr">
     <file preprocess="xml-stripblanks">timr.ui</file>
     <file preprocess="xml-stripblanks">app_menu.ui</file>
+    <file preprocess="xml-stripblanks">activity_dialog.ui</file>
   </gresource>
 </gresources>

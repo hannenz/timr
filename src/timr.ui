@@ -138,6 +138,16 @@
 					</packing>
 				</child>
 				<child>
+					<object class="GtkButton" id="add_button">
+						<property name="visible">True</property>
+						<property name="label">Add</property>
+						<signal name="clicked" handler="on_activity_add_button_clicked" />
+					</object>
+					<packing>
+						<property name="pack-type">start</property>
+					</packing>
+				</child>
+				<child>
 					<object class="GtkStackSwitcher" id="tabs">
 						<property name="visible">True</property>
 						<property name="stack">stack</property>

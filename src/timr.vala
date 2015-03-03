@@ -222,7 +222,7 @@ namespace Timr {
 			action = new GLib.SimpleAction ("quit", null);
 			action.activate.connect (quit);
 			add_action (action);
-			add_accelerator ("<Ctrl>Q", "app.quit", null);
+			set_accels_for_action("app.quit", {"<Ctrl>Q"} );
 
 			var builder = new Gtk.Builder.from_resource ("/de/hannenz/timr/app_menu.ui");
 			var app_menu = builder.get_object ("appmenu") as GLib.MenuModel;
