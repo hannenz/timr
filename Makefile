@@ -15,39 +15,22 @@ SOURCES =	src/main.vala\
 			src/activity_dialog.vala\
 			src/repository.vala
 
-CSOURCES = 	$(SOURCES:.vala=.c)
-OBJS =		$(CSOURCES:.c=.o)
-
 UIFILES = 	data/timr.ui\
 			data/app_menu.ui\
 			data/activity_dialog.ui\
 			data/timr.gresource.xml
 
-
 .PHONY: all clean distclean
-.SECONDARY: $(CSOURCES)
-
-foo:
-	@echo $(SOURCES)
-	@echo $(CSOURCES)
-	@echo $(OBJS)
 
 all: $(PRG)
 
-$(PRG): $(OBJS) $(UIFILES)
+$(PRG): $(SOURCES) $(UIFILES)
 	glib-compile-resources data/timr.gresource.xml --target=src/resources.c --generate-source --sourcedir="./data"
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-%.o: %.c
-	$(CC) $^ -c -o $@ -Wall -rdynamic $(CFLAGS)
-
-%.c: %.vala
-	$(VALAC) $^ -C -o $@ $(VALAFLAGS)
-
+	$(VALAC) -o $(PRG) $(SOURCES) src/resources.c $(VALAFLAGS)
 
 clean:
 	rm -f $(OBJS)
 	rm -f $(PRG)
 
 distclean: clean
-	rm -f $(CSOURCES)
+	rm -f *.vala.c

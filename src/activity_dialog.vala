@@ -41,6 +41,8 @@ namespace Timr {
 		}
 
 		private void split_time(string str, out int hours, out int minutes) {
+			hours = minutes = 0;
+			
 			switch (str.length){
 				case 1:
 				case 2:
