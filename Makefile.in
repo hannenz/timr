@@ -33,4 +33,4 @@ clean:
 	rm -f $(PRG)
 
 distclean: clean
-	rm -f *.vala.c
+	rm -f src/*.vala.c
