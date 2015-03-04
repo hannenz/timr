@@ -247,7 +247,8 @@ namespace Timr {
 		private void  timer_stop (){
 
 			Gtk.TreeIter iter;
-			int job_id = 0;
+			Job? job = null;
+			//int job_id = 0;
 			//string job_display_name = "unknown job", job_name, job_abbrev;
 
 			this.activity.stop ();
@@ -255,11 +256,11 @@ namespace Timr {
 			this.activity.description = activity_entry.get_text ();
 			if (job_combobox.get_active_iter (out iter)){
 				if (clients_jobs.iter_depth (iter) > 0){
-					clients_jobs.get (iter, 0, out job_id);
+					clients_jobs.get (iter, 0, out job);
 				}
 			}
 
-			this.activity.job = app.repository.get_job (job_id);
+			this.activity.job = app.repository.get_job (job.id);
 			this.activity.debug ();
 
 			timer.stop ();

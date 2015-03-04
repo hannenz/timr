@@ -25,6 +25,8 @@
 			<column type="gchararray" />
 			<!-- 2 Abbrev -->
 			<column type="gchararray" />
+			<!-- 2 Display name -->
+			<column type="gchararray" />
 		</columns>
 	</object>
 

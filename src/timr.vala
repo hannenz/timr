@@ -49,12 +49,12 @@ namespace Timr {
 			foreach (var client in clients) {
 				Gtk.TreeIter? iter, parent_iter = null;
 				window.clients_jobs.append (out parent_iter, null);
-				window.clients_jobs.set (parent_iter, 0, client, 1, client.name, 2, client.abbrev);
+				window.clients_jobs.set (parent_iter, 0, client, 1, client.name, 2, client.abbrev, 3, client.name);
 
 				var jobs = this.repository.get_jobs_by_client (client.id);
 				foreach (var job in jobs) {
 					window.clients_jobs.append (out iter, parent_iter);
-					window.clients_jobs.set (iter, 0, job, 1, job.name, 2, job.abbrev);
+					window.clients_jobs.set (iter, 0, job, 1, job.name, 2, job.abbrev, 3, "<b>%s</b> %s".printf (job.abbrev, job.name));
 				}
 			}
 		}
