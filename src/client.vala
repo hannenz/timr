@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Timr {
 	
-	public class Client {
+	public class Client : GLib.Object{
 
 		/* Properties */
 

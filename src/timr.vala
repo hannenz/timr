@@ -10,8 +10,6 @@ namespace Timr {
 		/* This should be private, but alas... */
 		public Repository repository;
 
-		public Sqlite.Database db;
-
 		public Timr() {
 			application_id = "de.hannenz.timr";
 		}
@@ -23,37 +21,42 @@ namespace Timr {
 			window = new ApplicationWindow(this);
 			window.present();
 
-			window.update_database.connect( (query) => {
-
-				int rc;
-				string error_message;
-
-				if ((rc = db.exec(query, null, out error_message)) != Sqlite.OK){
-					this.window.error("Error while executing Sqlite query: %d: %s\n".printf(rc, error_message));
-				}
-			});
+			// Get rid of this!
+			// window.update_database.connect( (query) => {
+			// 	this.repository.query (query);
+			// });
 
 			window.activity_stopped.connect( (activity) => {
 
 				this.repository.save_activity(activity);
 				insert_activity (activity);
-
 			});
 
 			load_data ();
 
-			// window.activities_treeview.expand_row (new TreePath.first (), true);
-			window.activities_treeview.expand_all();
+			window.activities_treeview.expand_row (new TreePath.first (), true);
+			//window.activities_treeview.expand_all();
 		}
 
-		private bool load_data() {
+		private void load_data () {
 
 			var activities = this.repository.get_all_activities ();
 			foreach (var activity in activities) {
 				this.insert_activity (activity);
 			}
 
-			return true;
+			var clients = this.repository.get_all_clients ();
+			foreach (var client in clients) {
+				Gtk.TreeIter? iter, parent_iter = null;
+				window.clients_jobs.append (out parent_iter, null);
+				window.clients_jobs.set (parent_iter, 0, client, 1, client.name, 2, client.abbrev);
+
+				var jobs = this.repository.get_jobs_by_client (client.id);
+				foreach (var job in jobs) {
+					window.clients_jobs.append (out iter, parent_iter);
+					window.clients_jobs.set (iter, 0, job, 1, job.name, 2, job.abbrev);
+				}
+			}
 		}
 
 		private void preferences () { 
@@ -100,8 +103,6 @@ namespace Timr {
 			});
 
 			if (parent_iter == null) {
-
-				var fake_activity = new Activity();
 
 				window.activities.prepend (out parent_iter, null);
 				window.activities.set (parent_iter, 

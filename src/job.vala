@@ -1,6 +1,6 @@
 namespace Timr {
 
-	public class Job {
+	public class Job : GLib.Object {
 
 		/* Properties / Getters - Setters */
 

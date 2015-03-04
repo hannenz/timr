@@ -1,6 +1,6 @@
 namespace Timr {
 
-	public class Activity {
+	public class Activity : GLib.Object {
 
 		/* Properties */
 
@@ -80,6 +80,17 @@ namespace Timr {
 
 		public string get_date(){
 			return this.begin.format("%Y-%m-%d");
+		}
+
+		public void debug () {
+			GLib.debug ("[id]%u [description]%s [job_id]%u [job_name]%s [begin]%s [end]%s",
+				this.id,
+				this.description,
+				this.job.id,
+				this.job.name,
+				this.begin.to_string (),
+				this.end.to_string ()
+			);
 		}
 
 	}

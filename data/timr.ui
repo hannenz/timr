@@ -5,7 +5,7 @@
 	<object class="GtkTreeStore" id="activities">
 		<columns>
 			<!-- 0 Object The Activity instance -->
-			<column type="gchararray" />
+			<column type="GObject" />
 			<!-- 1 All info formatted into one multiline text -->
 			<column type="gchararray" />
 			<!-- 2 duration nice -->
@@ -19,39 +19,11 @@
 
 	<object class="GtkTreeStore" id="clients_jobs">
 		<columns>
-			<!-- 0 Database ID -->
-			<column type="gint" />
+			<!-- 0 GObject The Client/Job instance -->
+			<column type="GObject" />
 			<!-- 1 Name -->
 			<column type="gchararray" />
 			<!-- 2 Abbrev -->
-			<column type="gchararray" />
-			<!-- 3 Display Name -->
-			<column type="gchararray" />
-		</columns>
-	</object>
-
-	<object class="GtkListStore" id="clients">
-		<columns>
-			<!-- 0 Database ID -->
-			<column type="gint" />
-			<!-- 1 name -->
-			<column type="gchararray" />
-			<!-- 2 abbrev -->
-			<column type="gchararray" />
-		</columns>
-	</object>
-
-	<object class="GtkListStore" id="jobs">
-		<columns>
-			<!-- 0 Database ID -->
-			<column type="gint" />
-			<!-- 1 name -->
-			<column type="gchararray" />
-			<!-- 2 abbrev -->
-			<column type="gchararray" />
-			<!-- 3 client_id -->
-			<column type="gint" />
-			<!-- 4 Display Name -->
 			<column type="gchararray" />
 		</columns>
 	</object>
@@ -284,23 +256,6 @@
 										<property name="rules-hint">True</property>
 										<signal name="row-activated" handler="on_client_treeview_row_activated" />
 										<child>
-											<object class="GtkTreeViewColumn" id="client_name">
-												<property name="title">Name</property>
-												<property name="clickable">True</property>
-												<property name="resizable">True</property>
-												<property name="sort-column-id">1</property>
-												<child>
-													<object class="GtkCellRendererText">
-														<property name="editable">True</property>
-														<signal name="edited" handler="on_client_treeview_name_column_edited" />
-													</object>
-													<attributes>
-														<attribute name="text">1</attribute>
-													</attributes>
-												</child>
-											</object>
-										</child>
-										<child>
 											<object class="GtkTreeViewColumn" id="client_abbrev">
 												<property name="title">Abbrev</property>
 												<property name="clickable">True</property>
@@ -313,6 +268,23 @@
 													</object>
 													<attributes>
 														<attribute name="text">2</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+										<child>
+											<object class="GtkTreeViewColumn" id="client_name">
+												<property name="title">Name</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">1</property>
+												<child>
+													<object class="GtkCellRendererText">
+														<property name="editable">True</property>
+														<signal name="edited" handler="on_client_treeview_name_column_edited" />
+													</object>
+													<attributes>
+														<attribute name="text">1</attribute>
 													</attributes>
 												</child>
 											</object>

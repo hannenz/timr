@@ -10,6 +10,8 @@ namespace Timr {
 
 		public Repository (string db_filename) {
 
+			// IMPLEMENT ME: If file does not exist, create it and create all tables from schema
+
 			int r = Database.open (db_filename, out this.db);
 			if (r != Sqlite.OK){
 				stderr.printf ("Error while connecting to database: %d: %s", r, db.errmsg ());
@@ -48,6 +50,21 @@ namespace Timr {
 			return jobs;
 		}
 
+		public ArrayList<Job>? get_jobs_by_client (int client_id) {
+			ArrayList<Job> jobs = new ArrayList<Job>();
+
+			var query = "SELECT `id`,`name`,`abbrev`,`client_id` FROM `jobs` WHERE `client_id`=%u ORDER BY `name` ASC".printf (client_id);
+			int r = db.exec (query, (n, values, names) => {
+				var job = new Job (int.parse(values[0]), values[1], values[2], this.get_client (int.parse(values[3])));
+				jobs.add(job);
+				return 0;
+			});
+			if (r != Sqlite.OK){
+				return null;
+			}
+			return jobs;
+		}
+
 		public Client? get_client (int client_id) {
 			Client client = null;
 			string query = "SELECT `id`,`name`,`abbrev` FROM `clients` WHERE `id`=%u".printf (client_id);
@@ -62,7 +79,7 @@ namespace Timr {
 
 			string query = (client.id > 0) 
 				? "UPDATE `clients` SET `name`='%s',`abbrev`='%s' WHERE `id`=%u".printf (client.name, client.abbrev, client.id)
-				: "INSERT INTO `clients` SET `name`='%s',`abbrev`='%s'".printf (client.name, client.abbrev)
+				: "INSERT INTO `clients` (`name`, `abbrev`) VALUES ('%s','%s')".printf (client.name, client.abbrev)
 			;
 			return (db.exec (query) == Sqlite.OK);
 		}
@@ -81,7 +98,7 @@ namespace Timr {
 
 			string query = (job.id > 0) 
 				? "UPDATE `jobs` SET `name`='%s',`abbrev`='%s',`client_id`=%u WHERE `id`=%u".printf (job.name, job.abbrev, job.client.id, job.id)
-				: "INSERT INTO `jobs` SET `name`='%s',`abbrev`='%s',`client_id`=%u".printf (job.name, job.abbrev, job.client.id)
+				: "INSERT INTO `jobs` (`name`,`abbrev`,`client_id`) VALUES ('%s','%s',%u)".printf (job.name, job.abbrev, job.client.id)
 			;
 			return (db.exec(query) == Sqlite.OK);
 		}
@@ -131,11 +148,22 @@ namespace Timr {
 
 		public bool save_activity (Activity activity) {
 
+			string error_message;
 			string query = (activity.id > 0) 
 				? "UPDATE `activities` SET `description`='%s',`job_id`=%u,`begin`='%s', `end`='%s' WHERE `id`=%u".printf (activity.description, activity.job.id, activity.begin.format("%Y-%m-%d %H:%M:%S"), activity.end.format("%Y-%m-%d %H:%M:%S"), activity.id)
-				: "INSERT INTO `activities` SET `description`='%s',`job_id`=%u,`begin`='%s', `end`='%s'".printf (activity.description, activity.job.id, activity.begin.format("%Y-%m-%d %H:%M:%S"), activity.end.format("%Y-%m-%d %H:%M:%S"))
+				: "INSERT INTO `activities` (`description`,`job_id`,`begin`,`end`) VALUES ('%s',%u,'%s','%s')".printf (activity.description, activity.job.id, activity.begin.format("%Y-%m-%d %H:%M:%S"), activity.end.format("%Y-%m-%d %H:%M:%S"))
 			;
-			return (db.exec(query) == Sqlite.OK);
+
+			if (db.exec(query, null, out error_message) != Sqlite.OK) {
+				warning (error_message);
+				return false;
+			}
+			return true;
+		}
+
+		public bool query (string query) {
+			int r = db.exec (query);
+			return (r == Sqlite.OK);
 		}
 	}
 }

@@ -20,11 +20,11 @@ namespace Timr {
 		[GtkChild]
 		public Gtk.TreeStore activities;
 
-		[GtkChild]
-		public Gtk.ListStore clients;
+		// [GtkChild]
+		// public Gtk.ListStore clients;
 
-		[GtkChild]
-		public Gtk.ListStore jobs;
+		// [GtkChild]
+		// public Gtk.ListStore jobs;
 
 		[GtkChild]
 		public Gtk.TreeStore clients_jobs;
@@ -123,16 +123,26 @@ namespace Timr {
 		public void on_activities_treeview_row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
 
 			Gtk.TreeIter iter;
-			string description;
+			Activity activity;
 
 			activities.get_iter(out iter, path);
-			activities.get(iter, 1, out description);
+			activities.get (iter, 0, out activity);
 
-			debug ("%u\n", activity.job.id);
+			activity_entry.set_text (activity.description);
 
-			activity_entry.set_text(description);
-			timer_start();
+			clients_jobs.foreach ( (model, path, iter) => {
+				if (clients_jobs.iter_depth(iter) > 0) {
+					Job job;
+					model.get (iter, 0, out job);
+					if (job.id == activity.job.id) {
+						job_combobox.set_active_iter (iter);
+						return true;
+					}
+				}
+				return false;
+			});
 
+			timer_start ();
 		}
 
 		[GtkCallback]
@@ -140,35 +150,35 @@ namespace Timr {
 //			stdout.printf("Row has been activated\n");
 		}
 
-		[GtkCallback]
-		public void on_client_treeview_name_column_edited(string path_str, string new_text){
+		// [GtkCallback]
+		// public void on_client_treeview_name_column_edited(string path_str, string new_text){
 			
-			Gtk.TreeIter iter;
-			Gtk.TreePath path;
-			int id;
-			path = new Gtk.TreePath.from_string(path_str);
-			clients.get_iter(out iter, path);
-			clients.get(iter, 0, out id);
-			clients.set(iter, 1, new_text);
+		// 	Gtk.TreeIter iter;
+		// 	Gtk.TreePath path;
+		// 	int id;
+		// 	path = new Gtk.TreePath.from_string(path_str);
+		// 	clients.get_iter(out iter, path);
+		// 	clients.get(iter, 0, out id);
+		// 	clients.set(iter, 1, new_text);
 
-			string query = "UPDATE clients SET name='%s' WHERE id=%u\n".printf(new_text, id);
-			update_database(query);
-		}
+		// 	string query = "UPDATE clients SET name='%s' WHERE id=%u\n".printf(new_text, id);
+		// 	update_database(query);
+		// }
 
-		[GtkCallback]
-		public void on_client_treeview_abbrev_column_edited(string path_str, string new_text){
-			Gtk.TreeIter iter;
-			Gtk.TreePath path;
-			int id;
-			path = new Gtk.TreePath.from_string(path_str);
-			clients.get_iter(out iter, path);
-			clients.get(iter, 0, out id);
-			clients.set(iter, 2, new_text);
+		// [GtkCallback]
+		// public void on_client_treeview_abbrev_column_edited(string path_str, string new_text){
+		// 	Gtk.TreeIter iter;
+		// 	Gtk.TreePath path;
+		// 	int id;
+		// 	path = new Gtk.TreePath.from_string(path_str);
+		// 	clients.get_iter(out iter, path);
+		// 	clients.get(iter, 0, out id);
+		// 	clients.set(iter, 2, new_text);
 
-			string query = "UPDATE clients SET abbrev='%s' WHERE id=%u\n".printf(new_text, id);
+		// 	string query = "UPDATE clients SET abbrev='%s' WHERE id=%u\n".printf(new_text, id);
 
-			update_database(query);
-		}
+		// 	update_database(query);
+		// }
 
 		[GtkCallback]
 		public void on_timer_toggle_button_clicked(Gtk.Button button) {
@@ -223,62 +233,48 @@ namespace Timr {
 
 		private void  timer_start () {
 
-				this.activity = new Activity();
+				this.activity = new Activity ();
+				this.activity.start ();
 
-				timer.start();
+				timer.start ();
 				timer_running = true;
-				timer_button.set_label("Stop timer");
+				timer_button.set_label ("Stop timer");
 
-				timer_button.override_background_color(Gtk.StateFlags.NORMAL, red);
-				timer_button.override_color(Gtk.StateFlags.NORMAL, white);
+				timer_button.override_background_color  (Gtk.StateFlags.NORMAL, red);
+				timer_button.override_color (Gtk.StateFlags.NORMAL, white);
 		}
 
-		private void  timer_stop(){
-				Gtk.TreeIter iter;
-				int job_id = 0;
-				string job_display_name = "unknown job", job_name, job_abbrev;
+		private void  timer_stop (){
 
-				this.activity.stop();
+			Gtk.TreeIter iter;
+			int job_id = 0;
+			//string job_display_name = "unknown job", job_name, job_abbrev;
 
-				this.activity.description = activity_entry.get_text();
-				if (job_combobox.get_active_iter(out iter)){
-					if (clients_jobs.iter_depth(iter) > 0){
-						clients_jobs.get(iter, 0, out job_id, 1, out job_name, 2, out job_abbrev, 3, out job_display_name);
-					}
+			this.activity.stop ();
+
+			this.activity.description = activity_entry.get_text ();
+			if (job_combobox.get_active_iter (out iter)){
+				if (clients_jobs.iter_depth (iter) > 0){
+					clients_jobs.get (iter, 0, out job_id);
 				}
+			}
 
-				this.activity.job = app.repository.get_job (job_id);
+			this.activity.job = app.repository.get_job (job_id);
+			this.activity.debug ();
 
-				// this.activity.job_name = job_display_name;
-				// this.activity.text = "<b>" + job_display_name + "</b>\n" + activity.description;
+			timer.stop ();
+			timer_running = false;
+			timer_button.set_label ("Start timer");
+			timer_button.override_background_color (Gtk.StateFlags.NORMAL, green);
+			timer_button.override_color (Gtk.StateFlags.NORMAL, white);
 
-				timer.stop();
-				timer_running = false;
-				timer_button.set_label("Start timer");
-				timer_button.override_background_color(Gtk.StateFlags.NORMAL, green);
-				timer_button.override_color(Gtk.StateFlags.NORMAL, white);
+			// Reset UI
+			elapsed_label.set_text ("0 sec");
+			activity_entry.set_text ("");
+			job_combobox.set_active (0);
 
-
-
-				// this.activities.prepend(out iter, null);
-				// this.activities.set(iter,
-				// 	1, this.activity.description,
-				// 	2, this.activity.job_id,
-				// 	3, this.activity.get_duration(),
-				// 	4, this.activity.get_duration_nice(),
-				// 	// 5, time0.to_unix(),
-				// 	// 6, time1.to_unix(),
-				// 	7, this.activity.get_timespan_formatted(),
-				// 	8, this.activity.job_name
-				// );
-
-				// Reset UI
-				elapsed_label.set_text("0 sec");
-				activity_entry.set_text("");
-				job_combobox.set_active(0);
-
-				// Emit signal
-				activity_stopped(this.activity);
+			// Emit signal
+			activity_stopped (this.activity);
 
 		}
 	}
