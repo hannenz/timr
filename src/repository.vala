@@ -20,7 +20,7 @@ namespace Timr {
 		public List<Client>? get_all_clients () {
 			List<Client> clients = new List<Client>();
 
-			var query = "SELECT * FROM clients ORDER BY name asc";
+			var query = "SELECT * FROM `clients` ORDER BY `name` ASC";
 			int r = db.exec (query, (n_columns, values, column_names) => {
 				var client = new Client(int.parse(values[0]), values[1], values[2]);
 				clients.append(client);
@@ -29,7 +29,8 @@ namespace Timr {
 			if (r != Sqlite.OK){
 				return null;
 			}
-			return clients.copy();
+
+			return clients;
 		}
 
 		public List<Job> get_all_jobs () {

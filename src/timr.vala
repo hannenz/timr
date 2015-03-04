@@ -58,9 +58,10 @@ namespace Timr {
 		private bool load_data() {
 
 			List<Client>clients = this.repository.get_all_clients ();
-			clients.foreach ( (client) => {
-				debug ("%s\n", client.get_name());
-			});
+
+			foreach (unowned Client c in clients) {
+				debug (c.get_name());
+			}
 
 			return true;
 		}

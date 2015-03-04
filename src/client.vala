@@ -10,10 +10,14 @@ namespace Timr {
 
 		private string abbrev;
 
-		public Client (int id, string name, string abbrev) {
+		public Client (int id, string name, string? abbrev) {
 			this.id = id;
 			this.name = name;
 			this.abbrev = abbrev;
+		}
+
+		public int get_id() {
+			return this.id;
 		}
 
 		public string get_name (){
