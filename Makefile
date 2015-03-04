@@ -2,9 +2,9 @@ PRG = timr
 CC = gcc
 VALAC = valac
 PKGCONFIG = $(shell which pkg-config)
-CFLAGS = `$(PKGCONFIG) --cflags gtk+-3.0 sqlite3`
-LIBS = `$(PKGCONFIG) --libs gtk+-3.0 sqlite3`
-VALAFLAGS = --pkg gtk+-3.0 --pkg sqlite3 --target-glib=2.38 --gresources data/timr.gresource.xml
+CFLAGS = `$(PKGCONFIG) --cflags gtk+-3.0 sqlite3 gee-1.0`
+LIBS = `$(PKGCONFIG) --libs gtk+-3.0 sqlite3 gee-1.0`
+VALAFLAGS = --pkg gtk+-3.0 --pkg sqlite3 --pkg gee-1.0 --target-glib=2.38 --gresources data/timr.gresource.xml
 
 SOURCES =	src/main.vala\
 			src/timr.vala\
@@ -19,6 +19,9 @@ UIFILES = 	data/timr.ui\
 			data/app_menu.ui\
 			data/activity_dialog.ui\
 			data/timr.gresource.xml
+
+#Disable implicit rules by empty target .SUFFIXES
+.SUFFIXES:
 
 .PHONY: all clean distclean
 

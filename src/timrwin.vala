@@ -55,9 +55,11 @@ namespace Timr {
 		public signal void update_database(string query);
 		public signal void client_edited(string query);
 
+		private Timr app;
+
 		public ApplicationWindow (Timr application) {
 			GLib.Object (application:application);
-
+			this.app = application;
 			this.timer = new GLib.Timer();
 			this.elapsed_label.set_size_request(120, -1);
 
@@ -126,7 +128,7 @@ namespace Timr {
 			activities.get_iter(out iter, path);
 			activities.get(iter, 1, out description);
 
-			debug ("%u\n", activity.job_id);
+			debug ("%u\n", activity.job.id);
 
 			activity_entry.set_text(description);
 			timer_start();
@@ -185,15 +187,15 @@ namespace Timr {
 			activity_dialog.response.connect( (response) => {
 				if (response == Gtk.ResponseType.OK){
 
-					var activity = new Activity.past(
+					var job = app.repository.get_job (activity_dialog.get_job_id ());
+
+					var activity = new Activity (
+						0, 
 						activity_dialog.get_description(),
+						job,
 						activity_dialog.get_begin(),
 						activity_dialog.get_end()
 					);
-					activity.job_id = activity_dialog.get_job_id();
-					activity.job_name = activity_dialog.get_job_name();
-					activity.text = activity_dialog.get_text();
-
 					activity_stopped(activity);
 				}
 				activity_dialog.destroy();
@@ -245,9 +247,11 @@ namespace Timr {
 					}
 				}
 
-				this.activity.job_id = job_id;
-				this.activity.job_name = job_display_name;
-				this.activity.text = "<b>" + job_display_name + "</b>\n" + activity.description;
+				this.activity.job = app.repository.get_job (job_id);
+
+				// this.activity.job_name = job_display_name;
+				// this.activity.text = "<b>" + job_display_name + "</b>\n" + activity.description;
+
 				timer.stop();
 				timer_running = false;
 				timer_button.set_label("Start timer");

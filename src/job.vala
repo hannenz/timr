@@ -2,50 +2,22 @@ namespace Timr {
 
 	public class Job {
 
-		private int id;
+		/* Properties / Getters - Setters */
 
-		private string name;
+		public int id { get; set; default = 0; }
 
-		private string abbrev;
+		public string name { get; set; default = null; }
+		
+		public string abbrev { get; set; default = null; }
 
-		private Client client;
+		public Client client { get; set; default = null; }
 
-		public Job (int id, string name, string abbrev, Client client) {
+		/* Constructor */
+
+		public Job (int? id = 0, string? name = null, string? abbrev = null, Client? client = null) {
 			this.id = id;
 			this.name = name;
 			this.abbrev = abbrev;
-			this.client = client;
-		}
-
-		public int get_id () {
-			return this.id;
-		}
-
-		public void set_id (int id) {
-			this.id = id;
-		}
-
-		public string get_name () {
-			return this.name;
-		}
-
-		public void set_name (string name){
-			this.name = name;
-		}
-
-		public string get_abbrev () {
-			return this.abbrev;
-		}
-
-		public void set_abbrev (string abbrev) {
-			this.abbrev = abbrev;
-		}
-
-		public Client get_client () {
-			return this.client;
-		}
-
-		public void set_client (Client client) {
 			this.client = client;
 		}
 	}

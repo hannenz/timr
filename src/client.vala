@@ -4,35 +4,19 @@ namespace Timr {
 	
 	public class Client {
 
-		private int id;
+		/* Properties */
 
-		private string name;
+		public int id { get; set; default = 0; }
 
-		private string abbrev;
+		public string name { get; set; default = null; }
 
-		public Client (int id, string name, string? abbrev) {
+		public string abbrev { get; set; default = null; }
+
+		/* Constructor */
+
+		public Client (int? id = 0, string? name = null, string? abbrev = null) {
 			this.id = id;
 			this.name = name;
-			this.abbrev = abbrev;
-		}
-
-		public int get_id() {
-			return this.id;
-		}
-
-		public string get_name (){
-			return this.name;
-		}
-
-		public void set_name (string name){
-			this.name = name;
-		}
-
-		public string get_abbrev () {
-			return this.abbrev;
-		}
-
-		public void set_abbrev (string abbrev) {
 			this.abbrev = abbrev;
 		}
 	}

@@ -4,29 +4,15 @@
 
 	<object class="GtkTreeStore" id="activities">
 		<columns>
-			<!-- 0 Database ID -->
-			<column type="gint" />
-			<!-- 1 description -->
+			<!-- 0 Object The Activity instance -->
 			<column type="gchararray" />
-			<!-- 2 job ID -->
-			<column type="gint" />
-			<!-- 3 duration (in seconds) -->
-			<column type="gint" />
-			<!-- 4 duration nice -->
+			<!-- 1 All info formatted into one multiline text -->
 			<column type="gchararray" />
-			<!-- 5 begin (as UNIX timestamp) -->
-			<column type="gint" />
-			<!-- 6 end (as UNIX timestamp) -->
-			<column type="gint" />
-			<!-- 7 timespan formatted -->
+			<!-- 2 duration nice -->
 			<column type="gchararray" />
-			<!-- 8 job name -->
+			<!-- 3 timespan formatted -->
 			<column type="gchararray" />
-			<!-- 9 client name -->
-			<column type="gchararray" />
-			<!-- 10 The day of the activity in Y-m-d format-->
-			<column type="gchararray" />
-			<!-- 11 All info formatted into one multiline text -->
+			<!-- 4 The day of the activity in Y-m-d format-->
 			<column type="gchararray" />
 		</columns>
 	</object>
@@ -231,7 +217,7 @@
 												<child>
 													<object class="GtkCellRendererText" />
 													<attributes>
-														<attribute name="markup">11</attribute>
+														<attribute name="markup">1</attribute>
 													</attributes>
 												</child>
 											</object>
@@ -259,7 +245,7 @@
 												<child>
 													<object class="GtkCellRendererText" />
 													<attributes>
-														<attribute name="markup">4</attribute>
+														<attribute name="markup">2</attribute>
 													</attributes>
 												</child>
 											</object>
@@ -273,7 +259,7 @@
 												<child>
 													<object class="GtkCellRendererText" />
 													<attributes>
-														<attribute name="markup">7</attribute>
+														<attribute name="markup">3</attribute>
 													</attributes>
 												</child>
 											</object>

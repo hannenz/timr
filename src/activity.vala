@@ -2,53 +2,36 @@ namespace Timr {
 
 	public class Activity {
 
-		private GLib.TimeZone timezone;
+		/* Properties */
 
-		private GLib.DateTime begin;
+		public int id { get; set; default = 0; }
 
-		private GLib.DateTime end;
+		public string description { get; set; default = null; }
 
-		private bool is_running;
+		public Job job { get; set; default = null; }
 
-		public string description;
+		public GLib.DateTime begin { get; set; default = null; }
 
-		public Job job;
+		public GLib.DateTime end {get; set; default = null; }
 
-		public int job_id;
+		// public string type { get; set; default = null; }
 
-		public string job_name;
-
-		public string client;
-
-		public string type;
-
-		public string text;
+		/* Constructor */
 		
-		public 	Activity() {
-
-			this.timezone = new GLib.TimeZone.local();
-			this.begin = new GLib.DateTime.now(this.timezone);
-			this.is_running = true;
-		}
-
-		public Activity.full(string description, Job job, DateTime begin, DateTime end){
+		public Activity(int? id = 0, string? description = null, Job? job = null, DateTime? begin = null, DateTime? end = null) {
+			this.id = id;
 			this.description = description;
 			this.job = job;
 			this.begin = begin;
 			this.end = end;
 		}
 
-		public Activity.past(string description, GLib.DateTime begin, GLib.DateTime end) {
-			this.is_running = false;
-			this.begin = begin;
-			this.end = end;
-			this.description = description;
+		public void start () {
+			this.begin = new GLib.DateTime.now_local ();
 		}
 
 		public void stop () {
-			this.end = new GLib.DateTime.now(this.timezone);
-			this.is_running = false;
-
+			this.end = new GLib.DateTime.now_local ();
 		}
 
 		public string get_duration_nice () {
@@ -81,20 +64,23 @@ namespace Timr {
 			return timespan;
 		}
 
-		public string get_begin_datetime() {
-			return this.begin.format("%Y-%m-%d %T");
-		}
+		public string get_summary () {
 
-		public string get_end_datetime() {
-			return this.end.format("%Y-%m-%d %T");
+			string summary = "<b>";
+			if (this.job.abbrev != null){
+			 	summary += this.job.abbrev;
+			}
+			if (this.job.name != null){
+			 	summary += " " + this.job.name;
+			}
+			summary += "</b>\n";
+			summary += this.description;
+			return summary;
 		}
 
 		public string get_date(){
 			return this.begin.format("%Y-%m-%d");
 		}
 
-		public DateTime get_begin() {
-			return this.begin;
-		}
 	}
 }

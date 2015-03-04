@@ -7,7 +7,8 @@ namespace Timr {
 
 		private ApplicationWindow window;
 
-		private Repository repository;
+		/* This should be private, but alas... */
+		public Repository repository;
 
 		public Sqlite.Database db;
 
@@ -34,40 +35,29 @@ namespace Timr {
 
 			window.activity_stopped.connect( (activity) => {
 
-				string query = "INSERT INTO activities (description,job_id,begin,end) VALUES ('%s', %u, '%s', '%s')".printf(
-					activity.description,
-					activity.job_id,
-					activity.get_begin_datetime(),
-					activity.get_end_datetime()
-				);
+				this.repository.save_activity(activity);
+				insert_activity (activity);
 
-				string error_message;
-				int ec = this.db.exec(query, null, out error_message);
-				if (ec != Sqlite.OK){
-					this.window.error ("Error: " + error_message);
-				}
-
-				insert_activity (activity, (int) db.last_insert_rowid ());
 			});
 
 			load_data ();
 
-			window.activities_treeview.expand_row (new TreePath.first (), true);
+			// window.activities_treeview.expand_row (new TreePath.first (), true);
+			window.activities_treeview.expand_all();
 		}
 
 		private bool load_data() {
 
-			List<Client>clients = this.repository.get_all_clients ();
-
-			foreach (unowned Client c in clients) {
-				debug (c.get_name());
+			var activities = this.repository.get_all_activities ();
+			foreach (var activity in activities) {
+				this.insert_activity (activity);
 			}
 
 			return true;
 		}
 
 		private void preferences () { 
-
+			// IMPLEMENT ME!
 		}
 
 		public override void startup () {
@@ -88,17 +78,21 @@ namespace Timr {
 		}
 
 
-		public bool insert_activity(Activity activity, int id) {
+		public void insert_activity(Activity activity) {
 
 			Gtk.TreeIter? iter, parent_iter;
 			var date = activity.get_date();
 
+			iter = null;
 			parent_iter = null;
 			window.activities.foreach( (model, path, iter) => {
+
 				string d;
-				model.get(iter, 10, out d);
-				if (date == d){
-					if (model.iter_parent(out parent_iter, iter)){
+				model.get (iter, 4, out d);
+
+				if (date == d) {
+
+					if (model.iter_parent (out parent_iter, iter)){
 						return true;
 					}
 				}
@@ -106,59 +100,52 @@ namespace Timr {
 			});
 
 			if (parent_iter == null) {
-				window.activities.prepend(out parent_iter, null);
-				window.activities.set(parent_iter, 
-					0, 0,
-					1, "<b>" + nice_date(activity.get_begin()) + "</b>",
-					2, 0,
+
+				var fake_activity = new Activity();
+
+				window.activities.prepend (out parent_iter, null);
+				window.activities.set (parent_iter, 
+					0, null,
+					1, "<b>" + nice_date (activity.begin) + "</b>",
+					2, "",
 					3, "",
-					4, "",
-					7, "",
-					8, "",
-					10, date,
-					11, "<b>" + nice_date(activity.get_begin()) + "</b>"
+					4, date
 				);
 			}
 
-			window.activities.prepend(out iter, parent_iter);
-			window.activities.set(iter,
-				0, id,
-				1, activity.description,
-				2, activity.job_id,
-				3, activity.get_duration(),
-				4, activity.get_duration_nice(),
-				7, activity.get_timespan_formatted(),
-				8, activity.job_name,
-				10, date,
-				11, activity.text
+			window.activities.prepend (out iter, parent_iter);
+			window.activities.set (iter,
+				0, activity,
+				1, activity.get_summary (),
+				2, activity.get_duration_nice (),
+				3, activity.get_timespan_formatted (),
+				4, date
 			);
-
-			return true;
 		}
 
-		private string nice_date(GLib.DateTime date) {
-			var today = new GLib.DateTime.now_local();
-			var yesterday = today.add_days(-1);
+		private string nice_date (GLib.DateTime date) {
+
+			var today = new GLib.DateTime.now_local ();
+			var yesterday = today.add_days (-1);
 
 			if (
-				today.get_year() == date.get_year() &&
-				today.get_month() == date.get_month() &&
-				today.get_day_of_month() == date.get_day_of_month()
+				today.get_year () == date.get_year () &&
+				today.get_month () == date.get_month () &&
+				today.get_day_of_month () == date.get_day_of_month ()
 			)
 			{
 				return "Today";
 			}
 			if (
-				yesterday.get_year() == date.get_year() &&
-				yesterday.get_month() == date.get_month() &&
-				yesterday.get_day_of_month() == date.get_day_of_month()
+				yesterday.get_year () == date.get_year () &&
+				yesterday.get_month () == date.get_month () &&
+				yesterday.get_day_of_month () == date.get_day_of_month ()
 			)
 			{
 				return "Yesterday";
 			}
 
-			return date.format("%a, %d. %B %Y");
-
+			return date.format ("%a, %d. %B %Y");
 		}
 	}
 }
