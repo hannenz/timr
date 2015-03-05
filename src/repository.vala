@@ -161,6 +161,21 @@ namespace Timr {
 			return true;
 		}
 
+		public bool delete_activity (Activity activity) {
+			string query = "DELETE FROM `activities` WHERE `id`=%u".printf(activity.id);
+			return (db.exec(query) == Sqlite.OK);
+		}
+
+		public bool delete_client (Client client) {
+			string query = "DELETE FROM `clients` WHERE `id`=%u".printf(client.id);
+			return (db.exec(query) == Sqlite.OK);
+		}
+
+		public bool delete_job (Job job) {
+			string query = "DELETE FROM `jobs` WHERE `id`=%u".printf(job.id);
+			return (db.exec(query) == Sqlite.OK);
+		}
+
 		public bool query (string query) {
 			int r = db.exec (query);
 			return (r == Sqlite.OK);

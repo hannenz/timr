@@ -125,24 +125,27 @@ namespace Timr {
 			Gtk.TreeIter iter;
 			Activity activity;
 
-			activities.get_iter(out iter, path);
-			activities.get (iter, 0, out activity);
+			activities.get_iter (out iter, path);
 
-			activity_entry.set_text (activity.description);
+			if (activities.iter_depth (iter) > 0) {
 
-			clients_jobs.foreach ( (model, path, iter) => {
-				if (clients_jobs.iter_depth(iter) > 0) {
-					Job job;
-					model.get (iter, 0, out job);
-					if (job.id == activity.job.id) {
-						job_combobox.set_active_iter (iter);
-						return true;
+				activities.get (iter, 0, out activity);
+
+				activity_entry.set_text (activity.description);
+
+				clients_jobs.foreach ( (model, path, iter) => {
+					if (clients_jobs.iter_depth (iter) > 0) {
+						Job job;
+						model.get (iter, 0, out job);
+						if (job.id == activity.job.id) {
+							job_combobox.set_active_iter (iter);
+							return true;
+						}
 					}
-				}
-				return false;
-			});
-
-			timer_start ();
+					return false;
+				});
+				timer_start ();
+			}
 		}
 
 		[GtkCallback]
@@ -192,25 +195,27 @@ namespace Timr {
 		}
 
 		[GtkCallback]
-		public void on_activity_add_button_clicked(Gtk.Button button) {
-			var activity_dialog = new ActivityDialog(this, clients_jobs);
-			activity_dialog.response.connect( (response) => {
+		public void on_activity_add_button_clicked (Gtk.Button button) {
+			var activity_dialog = new ActivityDialog (this, clients_jobs);
+			activity_dialog.response.connect ( (response) => {
 				if (response == Gtk.ResponseType.OK){
-
-					var job = app.repository.get_job (activity_dialog.get_job_id ());
-
-					var activity = new Activity (
-						0, 
-						activity_dialog.get_description(),
-						job,
-						activity_dialog.get_begin(),
-						activity_dialog.get_end()
-					);
-					activity_stopped(activity);
+					var activity = activity_dialog.get_activity ();
+					if (activity == null) {
+						this.warning ("Invalid activity.");
+					}
+					else {
+						if (!app.check_insert_activity (activity)) {
+							this.warning ("This timespan is already in use");
+						}
+						else {
+							app.repository.save_activity (activity);
+							activity_stopped (activity);
+						}
+					}
 				}
-				activity_dialog.destroy();
+				activity_dialog.destroy ();
 			});
-			activity_dialog.run();
+			activity_dialog.run ();
 		}
 
 		private void message (string message, Gtk.MessageType type) {

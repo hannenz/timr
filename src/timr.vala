@@ -65,6 +65,7 @@ namespace Timr {
 
 		public override void startup () {
 			base.startup();
+
 			var action = new GLib.SimpleAction ("preferences", null);
 			action.activate.connect(preferences);
 			add_action (action);
@@ -74,14 +75,71 @@ namespace Timr {
 			add_action (action);
 			set_accels_for_action("app.quit", {"<Ctrl>Q"} );
 
+			action = new GLib.SimpleAction ("delete_activity", null);
+			action.activate.connect (delete_activity);
+			add_action (action);
+			set_accels_for_action ("app.delete_activity", {"<Ctrl>D"});
+
 			var builder = new Gtk.Builder.from_resource ("/de/hannenz/timr/app_menu.ui");
 			var app_menu = builder.get_object ("appmenu") as GLib.MenuModel;
-
 			set_app_menu (app_menu);
 		}
 
+		public void delete_activity () {
+			TreeModel model;
+			TreeIter iter;
+			Activity activity;
 
-		public void insert_activity(Activity activity) {
+			window.activities_treeview.get_selection ().get_selected (out model, out iter);
+			model.get(iter, 0, out activity);
+			if (repository.delete_activity (activity)) {
+				// Get the parent iter before removing	
+				TreeIter parent_iter;
+				window.activities.iter_parent (out parent_iter, iter);
+				
+				window.activities.remove (ref iter);
+				// If removing the last child iter will be invalidated, so we check for that
+				if (!window.activities.iter_is_valid (iter)) {
+					// If iter is invalid (last child has been removed), we remove the parent as well
+					window.activities.remove (ref parent_iter);
+				}
+			}
+		}
+
+		/**
+		 * Check for overlapping timespans
+		 */
+		public bool check_insert_activity (Activity activity) {
+
+			bool flag = true;
+			uint64 d0begin = activity.begin.to_unix ();
+			uint64 d0end = activity.end.to_unix ();
+
+			window.activities.foreach ( (model, path, iter) => {
+
+				Activity a;
+				model.get (iter, 0, out a);
+
+				if (a is Activity) {
+
+					a.debug ();
+
+					uint64 d1begin = a.begin.to_unix ();
+					uint64 d1end = a.end.to_unix ();
+
+					if ( (d0begin > d1begin && d0begin < d1end) || (d0end > d1begin && d0end < d1end)) {
+						flag = false;
+						return true;
+					}
+				}
+				return false;
+			});
+
+			return flag;
+		}
+
+
+		public void insert_activity(Activity activity) requires (activity is Activity) {
 
 			Gtk.TreeIter? iter, parent_iter;
 			var date = activity.get_date();
