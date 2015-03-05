@@ -2,9 +2,10 @@ PRG = timr
 CC = gcc
 VALAC = valac
 PKGCONFIG = $(shell which pkg-config)
-CFLAGS = `$(PKGCONFIG) --cflags gtk+-3.0 sqlite3 gee-1.0`
-LIBS = `$(PKGCONFIG) --libs gtk+-3.0 sqlite3 gee-1.0`
-VALAFLAGS = --pkg gtk+-3.0 --pkg sqlite3 --pkg gee-1.0 --target-glib=2.38 --gresources data/timr.gresource.xml
+PACKAGES = gtk+-3.0 sqlite3 gee-0.8 granite
+CFLAGS = `$(PKGCONFIG) --cflags $(PACKAGES)`
+LIBS = `$(PKGCONFIG) --libs $(PACKAGES)`
+VALAFLAGS = $(patsubst %, --pkg %, $(PACKAGES)) --target-glib=2.38 --gresources data/timr.gresource.xml
 
 SOURCES =	src/main.vala\
 			src/timr.vala\
