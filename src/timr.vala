@@ -10,6 +10,8 @@ namespace Timr {
 		/* This should be private, but alas... */
 		public Repository repository;
 
+		protected GLib.MenuModel context_menu_model;
+
 		public Timr() {
 			application_id = "de.hannenz.timr";
 		}
@@ -21,11 +23,6 @@ namespace Timr {
 			window = new ApplicationWindow(this);
 			window.present();
 
-			// Get rid of this!
-			// window.update_database.connect( (query) => {
-			// 	this.repository.query (query);
-			// });
-
 			window.activity_stopped.connect( (activity) => {
 
 				this.repository.save_activity(activity);
@@ -35,8 +32,71 @@ namespace Timr {
 			load_data ();
 
 			window.activities_treeview.expand_row (new TreePath.first (), true);
-			//window.activities_treeview.expand_all();
+
+			window.activities_treeview.button_press_event.connect ( (event) => {
+
+				if (event.type == Gdk.EventType.BUTTON_PRESS) {
+					if (((Gdk.EventButton)event).button == Gdk.BUTTON_SECONDARY) {
+						do_popup_menu (window.activities_treeview, event);
+						return true;
+					}
+				}
+				return false;
+			});
+
+			window.activities_treeview.popup_menu.connect( (event) => {
+				do_popup_menu (window.activities_treeview, null);
+				return true;
+			});
+
 		}
+
+		public override void startup () {
+			base.startup ();
+
+			var action = new GLib.SimpleAction ("preferences", null);
+			action.activate.connect (preferences);
+			add_action (action);
+
+			action = new GLib.SimpleAction ("quit", null);
+			action.activate.connect (quit);
+			add_action (action);
+			set_accels_for_action("app.quit", {"<Ctrl>Q"} );
+
+			action = new GLib.SimpleAction ("context.resume", null);
+			action.activate.connect (window.resume_activity);
+			add_action (action);
+			set_accels_for_action ("context.resume", {"<Ctrl>R"});
+
+			action = new GLib.SimpleAction ("context.delete", null);
+			action.activate.connect (delete_activity);
+			add_action (action);
+			set_accels_for_action ("context.resume", {"<Delete>"});
+
+			var builder = new Gtk.Builder.from_resource ("/de/hannenz/timr/app_menu.ui");
+			var app_menu = builder.get_object ("appmenu") as GLib.MenuModel;
+			set_app_menu (app_menu);
+
+			context_menu_model = builder.get_object ("context_menu_model") as GLib.MenuModel;
+		}
+
+		private void do_popup_menu (Widget widget, Gdk.EventButton? event) {
+
+			uint button, time;
+			Gtk.Menu menu = new Gtk.Menu.from_model (context_menu_model);
+			if (event != null) {
+				button = event.button;
+				time = event.time;
+			}
+			else {
+				button = 0;
+				time = Gtk.get_current_event_time ();
+			}
+
+			menu.attach_to_widget(widget, null);
+			menu.popup(null, null, null, button, time);
+		}
+
 
 		private void load_data () {
 
@@ -63,27 +123,6 @@ namespace Timr {
 			// IMPLEMENT ME!
 		}
 
-		public override void startup () {
-			base.startup();
-
-			var action = new GLib.SimpleAction ("preferences", null);
-			action.activate.connect(preferences);
-			add_action (action);
-
-			action = new GLib.SimpleAction ("quit", null);
-			action.activate.connect (quit);
-			add_action (action);
-			set_accels_for_action("app.quit", {"<Ctrl>Q"} );
-
-			action = new GLib.SimpleAction ("delete_activity", null);
-			action.activate.connect (delete_activity);
-			add_action (action);
-			set_accels_for_action ("app.delete_activity", {"<Ctrl>D"});
-
-			var builder = new Gtk.Builder.from_resource ("/de/hannenz/timr/app_menu.ui");
-			var app_menu = builder.get_object ("appmenu") as GLib.MenuModel;
-			set_app_menu (app_menu);
-		}
 
 		public void delete_activity () {
 			TreeModel model;

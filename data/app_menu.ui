@@ -15,4 +15,20 @@
 			</item>
 		</section>
 	</menu>
+
+	<menu id="context_menu_model">
+		<section>
+			<item>
+				<attribute name="label" translatable="yes">_Resume</attribute>
+				<attribute name="action">context.resume</attribute>
+			</item>
+		</section>
+		<section>
+			<item>
+				<attribute name="label" translatable="yes">_Delete</attribute>
+				<attribute name="action">context.delete</attribute>
+			</item>
+		</section>
+	</menu>
+
 </interface>

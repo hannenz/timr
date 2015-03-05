@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 	<requires lib="gtk+" version="3.12"/>
-
-
-
 	<object class="GtkTreeStore" id="activities">
 		<columns>
 			<!-- 0 Object The Activity instance -->
@@ -240,15 +237,16 @@
 												</child>
 											</object>
 										</child>
- 										<child>
+<!--  										<child>
 											<object class="GtkTreeViewColumn" id="buttons_tv_column">
 												<property name="title">Actions</property>
 												<property name="clickable">True</property>
-												
+
 												<signal name="clicked" handler="on_buttons_column_clicked" />
 											</object>
 										</child>
- 									</object>
+ -->
+  									</object>
 								</child>
 							</object>
 							<packing>

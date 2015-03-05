@@ -20,12 +20,6 @@ namespace Timr {
 		[GtkChild]
 		public Gtk.TreeStore activities;
 
-		// [GtkChild]
-		// public Gtk.ListStore clients;
-
-		// [GtkChild]
-		// public Gtk.ListStore jobs;
-
 		[GtkChild]
 		public Gtk.TreeStore clients_jobs;
 
@@ -41,8 +35,8 @@ namespace Timr {
 		[GtkChild]
 		public Gtk.ButtonBox info_bar_action_area;
 
-		[GtkChild]
-		public Gtk.TreeViewColumn buttons_tv_column;
+		// [GtkChild]
+		// public Gtk.TreeViewColumn buttons_tv_column;
 
 		private GLib.Timer timer;
 
@@ -95,27 +89,25 @@ namespace Timr {
 			timer_button.override_color(Gtk.StateFlags.NORMAL, white);
 			timer_button.grab_default();
 
-			var renderer = new CellRendererButton ();
-			buttons_tv_column.pack_start(renderer, true);
-//			buttons_tv_column.add_attribute (renderer, "icon", 0);
+			// var renderer = new CellRendererButton ();
+			// buttons_tv_column.pack_start(renderer, true);
 
-			activities_treeview.button_press_event.connect ( (event) => {
+			// activities_treeview.button_press_event.connect ( (event) => {
 
-				if (event.type == Gdk.EventType.BUTTON_PRESS) {
-					debug ("The treeview has been clicked!");
+			// 	if (event.type == Gdk.EventType.BUTTON_PRESS) {
+			// 		debug ("The treeview has been clicked!");
 
-					TreePath path;
-					TreeViewColumn column;
-					int cell_x, cell_y;
-					activities_treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, out cell_x, out cell_y);
-					if (column.title == "Actions") {
-						debug ("The buttons column has been clicked");
-						return true;
-					}
-				}
-				return false;
-			});
-
+			// 		TreePath path;
+			// 		TreeViewColumn column;
+			// 		int cell_x, cell_y;
+			// 		activities_treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, out cell_x, out cell_y);
+			// 		if (column.title == "Actions") {
+			// 			debug ("The buttons column has been clicked");
+			// 			return true;
+			// 		}
+			// 	}
+			// 	return false;
+			// });
 		}
 
 		private bool update_timer() {
@@ -144,11 +136,11 @@ namespace Timr {
 			info_bar.hide();
 		}
 
-		[GtkCallback]
-		public void on_buttons_column_clicked () {
-			debug ("Clicked!");
-			stdout.printf("Clicked!\n");
-		}
+		// [GtkCallback]
+		// public void on_buttons_column_clicked () {
+		// 	debug ("Clicked!");
+		// 	stdout.printf("Clicked!\n");
+		// }
 
 		[GtkCallback]
 		public void on_activities_treeview_row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
@@ -201,32 +193,34 @@ namespace Timr {
 			}
 		}
 
-		public void resume_activity (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+		public void resume_activity () {
 
-			Gtk.TreeIter iter;
-			Activity activity;
+			debug ("Resuming...!");
 
-			activities.get_iter (out iter, path);
+			// Gtk.TreeIter iter;
+			// Activity activity;
 
-			if (activities.iter_depth (iter) > 0) {
+			// activities.get_iter (out iter, path);
 
-				activities.get (iter, 0, out activity);
+			// if (activities.iter_depth (iter) > 0) {
 
-				activity_entry.set_text (activity.description);
+			// 	activities.get (iter, 0, out activity);
 
-				clients_jobs.foreach ( (model, path, iter) => {
-					if (clients_jobs.iter_depth (iter) > 0) {
-						Job job;
-						model.get (iter, 0, out job);
-						if (job.id == activity.job.id) {
-							job_combobox.set_active_iter (iter);
-							return true;
-						}
-					}
-					return false;
-				});
-				timer_start ();
-			}
+			// 	activity_entry.set_text (activity.description);
+
+			// 	clients_jobs.foreach ( (model, path, iter) => {
+			// 		if (clients_jobs.iter_depth (iter) > 0) {
+			// 			Job job;
+			// 			model.get (iter, 0, out job);
+			// 			if (job.id == activity.job.id) {
+			// 				job_combobox.set_active_iter (iter);
+			// 				return true;
+			// 			}
+			// 		}
+			// 		return false;
+			// 	});
+			// 	timer_start ();
+			// }
 		}
 
 		[GtkCallback]
