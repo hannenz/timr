@@ -14,7 +14,8 @@ SOURCES =	src/main.vala\
 			src/job.vala\
 			src/client.vala\
 			src/activity_dialog.vala\
-			src/repository.vala
+			src/repository.vala\
+			src/cell_renderer_button.vala
 
 UIFILES = 	data/timr.ui\
 			data/app_menu.ui\

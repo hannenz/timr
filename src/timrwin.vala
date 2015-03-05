@@ -41,6 +41,9 @@ namespace Timr {
 		[GtkChild]
 		public Gtk.ButtonBox info_bar_action_area;
 
+		[GtkChild]
+		public Gtk.TreeViewColumn buttons_tv_column;
+
 		private GLib.Timer timer;
 
 		private bool timer_running = false;
@@ -91,6 +94,28 @@ namespace Timr {
 			timer_button.override_background_color(Gtk.StateFlags.NORMAL, green);
 			timer_button.override_color(Gtk.StateFlags.NORMAL, white);
 			timer_button.grab_default();
+
+			var renderer = new CellRendererButton ();
+			buttons_tv_column.pack_start(renderer, true);
+//			buttons_tv_column.add_attribute (renderer, "icon", 0);
+
+			activities_treeview.button_press_event.connect ( (event) => {
+
+				if (event.type == Gdk.EventType.BUTTON_PRESS) {
+					debug ("The treeview has been clicked!");
+
+					TreePath path;
+					TreeViewColumn column;
+					int cell_x, cell_y;
+					activities_treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, out cell_x, out cell_y);
+					if (column.title == "Actions") {
+						debug ("The buttons column has been clicked");
+						return true;
+					}
+				}
+				return false;
+			});
+
 		}
 
 		private bool update_timer() {
@@ -120,7 +145,63 @@ namespace Timr {
 		}
 
 		[GtkCallback]
+		public void on_buttons_column_clicked () {
+			debug ("Clicked!");
+			stdout.printf("Clicked!\n");
+		}
+
+		[GtkCallback]
 		public void on_activities_treeview_row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
+
+			TreeIter iter;
+
+			activities.get_iter (out iter, path);
+			if (activities.iter_depth (iter) > 0) {
+				Activity activity;
+				activities.get (iter, 0, out activity);
+				var dlg = new ActivityDialog (this, clients_jobs, activity);
+				dlg.response.connect ( (response) => {
+
+					if (response == ResponseType.OK) {
+
+						activity = dlg.get_activity ();
+
+						// Remove the old activity from the TreeStore
+						TreeIter parent_iter;
+						activities.iter_parent (out parent_iter, iter);
+						
+						activities.remove (ref iter);
+						// If removing the last child iter will be invalidated, so we check for that
+						if (!activities.iter_is_valid (iter)) {
+							// If iter is invalid (last child has been removed), we remove the parent as well
+							activities.remove (ref parent_iter);
+						}
+
+						// Check if we have a valid timespan
+						if (app.check_insert_activity (activity)) {
+							// Yes, then save it (UPDATE)
+							if (app.repository.save_activity(activity)) {
+								// and insert the new one
+								app.insert_activity (activity);
+							}
+							else {
+								error ("Failed to save activity");
+							}
+						}
+						else {
+							warning ("Timespan already taken");
+						}
+					}
+
+					dlg.destroy ();
+				});
+				dlg.run ();
+
+
+			}
+		}
+
+		public void resume_activity (Gtk.TreePath path, Gtk.TreeViewColumn column) {
 
 			Gtk.TreeIter iter;
 			Activity activity;

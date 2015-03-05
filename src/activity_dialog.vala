@@ -21,6 +21,8 @@ namespace Timr {
 
 		private DateTime end = null;
 
+		private int activity_id;
+
 		// private int job_id = 0;
 
 		// private string job_name = null;
@@ -33,11 +35,21 @@ namespace Timr {
 
 		private ApplicationWindow parent_window;
 
-		public ActivityDialog (ApplicationWindow window, Gtk.TreeStore clients_jobs) {
+		public ActivityDialog (ApplicationWindow window, Gtk.TreeStore clients_jobs, Activity? activity = null) {
 
 			GLib.Object (transient_for: window, use_header_bar: 0);
 
 			job_combobox.set_model(clients_jobs);
+
+			if (activity != null) {
+				description_entry.set_text (activity.description);
+				timespan_entry.set_text ("%s-%s".printf(activity.begin.format("%H:%M"), activity.end.format("%H:%M")));
+				calendar.year = activity.begin.get_year ();
+				calendar.month = activity.begin.get_month () - 1;
+				calendar.day = activity.begin.get_day_of_month ();
+				activity_id = activity.id;
+			}
+
 		}
 
 		public Activity? get_activity () {
@@ -55,7 +67,7 @@ namespace Timr {
 					model.get (iter, 0, out job);
 				}
 
-				activity = new Activity (0, description_entry.get_text(), job, begin, end);
+				activity = new Activity (activity_id, description_entry.get_text(), job, begin, end);
 			}
 			return activity;
 		}

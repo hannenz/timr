@@ -154,6 +154,8 @@ namespace Timr {
 				: "INSERT INTO `activities` (`description`,`job_id`,`begin`,`end`) VALUES ('%s',%u,'%s','%s')".printf (activity.description, activity.job.id, activity.begin.format("%Y-%m-%d %H:%M:%S"), activity.end.format("%Y-%m-%d %H:%M:%S"))
 			;
 
+			debug (query);
+
 			if (db.exec(query, null, out error_message) != Sqlite.OK) {
 				warning (error_message);
 				return false;

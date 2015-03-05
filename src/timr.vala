@@ -141,6 +141,8 @@ namespace Timr {
 
 		public void insert_activity(Activity activity) requires (activity is Activity) {
 
+			// TODO: We need to insert SORTED!! (by date)
+
 			Gtk.TreeIter? iter, parent_iter;
 			var date = activity.get_date();
 

@@ -36,17 +36,17 @@ namespace Timr {
 
 		public string get_duration_nice () {
 			string duration_nice;
-			int duration = (int)this.end.difference(this.begin) / 1000000;
+			int64 duration = (int64)this.end.difference(this.begin) / 1000000;
 
-			int hours = duration / 3600;
-			int minutes = duration / 60 % 60;
-			int seconds = duration % 60;
+			int64 hours = duration / 3600;
+			int64 minutes = (duration / 60) % 60;
+			int64 seconds = duration % 60;
 
-			duration_nice = (hours > 0) ? "<b>%02u</b>".printf(hours) : "%02u".printf(hours);
+			duration_nice = (hours > 0) ? "<b>%02u</b>".printf((int)hours) : "%02u".printf((int)hours);
 			duration_nice += ":";
-			duration_nice += (minutes > 0) ? "<b>%02u</b>".printf(minutes) : "%02u".printf(minutes);
+			duration_nice += (minutes > 0) ? "<b>%02u</b>".printf((int)minutes) : "%02u".printf((int)minutes);
 			duration_nice += ":";
-			duration_nice += "%02u".printf(seconds);
+			duration_nice += "%02u".printf((int)seconds);
 
 			return duration_nice;
 		}

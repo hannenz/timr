@@ -240,7 +240,15 @@
 												</child>
 											</object>
 										</child>
-									</object>
+ 										<child>
+											<object class="GtkTreeViewColumn" id="buttons_tv_column">
+												<property name="title">Actions</property>
+												<property name="clickable">True</property>
+												
+												<signal name="clicked" handler="on_buttons_column_clicked" />
+											</object>
+										</child>
+ 									</object>
 								</child>
 							</object>
 							<packing>
@@ -268,7 +276,7 @@
 												<child>
 													<object class="GtkCellRendererText">
 														<property name="editable">True</property>
-														<signal name="edited" handler="on_client_treeview_abbrev_column_edited" />
+														<!-- <signal name="edited" handler="on_client_treeview_abbrev_column_edited" /> -->
 													</object>
 													<attributes>
 														<attribute name="text">2</attribute>
@@ -285,7 +293,7 @@
 												<child>
 													<object class="GtkCellRendererText">
 														<property name="editable">True</property>
-														<signal name="edited" handler="on_client_treeview_name_column_edited" />
+														<!-- <signal name="edited" handler="on_client_treeview_name_column_edited" /> -->
 													</object>
 													<attributes>
 														<attribute name="text">1</attribute>
