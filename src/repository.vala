@@ -37,7 +37,7 @@ namespace Timr {
 		public ArrayList<Job>? get_all_jobs () {
 			ArrayList<Job> jobs = new ArrayList<Job>();
 
-			var query = "SELECT `id`,`name`,`abbrev`,`client_id` FROM `jobs` ORDER BY `name` ASC";
+			var query = "SELECT `id`,`name`,`abbrev`,`client_id` FROM `jobs` ORDER BY `abbrev` ASC";
 			int r = db.exec (query, (n, values, names) => {
 				var job = new Job (int.parse(values[0]), values[1], values[2], this.get_client (int.parse(values[3])));
 				jobs.add(job);
@@ -53,7 +53,7 @@ namespace Timr {
 		public ArrayList<Job>? get_jobs_by_client (int client_id) {
 			ArrayList<Job> jobs = new ArrayList<Job>();
 
-			var query = "SELECT `id`,`name`,`abbrev`,`client_id` FROM `jobs` WHERE `client_id`=%u ORDER BY `name` ASC".printf (client_id);
+			var query = "SELECT `id`,`name`,`abbrev`,`client_id` FROM `jobs` WHERE `client_id`=%u ORDER BY `abbrev` ASC".printf (client_id);
 			int r = db.exec (query, (n, values, names) => {
 				var job = new Job (int.parse(values[0]), values[1], values[2], this.get_client (int.parse(values[3])));
 				jobs.add(job);
@@ -150,8 +150,8 @@ namespace Timr {
 
 			string error_message;
 			string query = (activity.id > 0) 
-				? "UPDATE `activities` SET `description`='%s',`job_id`=%u,`begin`='%s', `end`='%s' WHERE `id`=%u".printf (activity.description, activity.job.id, activity.begin.format("%Y-%m-%d %H:%M:%S"), activity.end.format("%Y-%m-%d %H:%M:%S"), activity.id)
-				: "INSERT INTO `activities` (`description`,`job_id`,`begin`,`end`) VALUES ('%s',%u,'%s','%s')".printf (activity.description, activity.job.id, activity.begin.format("%Y-%m-%d %H:%M:%S"), activity.end.format("%Y-%m-%d %H:%M:%S"))
+				? "UPDATE `activities` SET `description`='%s',`job_id`=%u,`begin`='%s', `end`='%s' WHERE `id`=%u".printf (activity.description, activity.job.id, activity.begin.format("%F %T"), activity.end.format("%F %T"), activity.id)
+				: "INSERT INTO `activities` (`description`,`job_id`,`begin`,`end`) VALUES ('%s',%u,'%s','%s')".printf (activity.description, activity.job.id, activity.begin.format("%F %T"), activity.end.format("%F %T"))
 			;
 
 			debug (query);

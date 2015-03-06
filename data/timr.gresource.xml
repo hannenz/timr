@@ -4,5 +4,7 @@
     <file>timr.ui</file>
     <file>app_menu.ui</file>
     <file>activity_dialog.ui</file>
+    <file>client_dialog.ui</file>
+    <file>job_dialog.ui</file>
   </gresource>
 </gresources>

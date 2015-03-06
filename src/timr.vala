@@ -108,6 +108,10 @@ namespace Timr {
 			var clients = this.repository.get_all_clients ();
 			foreach (var client in clients) {
 				Gtk.TreeIter? iter, parent_iter = null;
+
+				window.clients.append (out iter);
+				window.clients.set(iter, 0, client, 1, client.name, 2, client.abbrev, 3, "%s %s".printf(client.abbrev, client.name));
+
 				window.clients_jobs.append (out parent_iter, null);
 				window.clients_jobs.set (parent_iter, 0, client, 1, client.name, 2, client.abbrev, 3, client.name);
 

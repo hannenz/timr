@@ -5,8 +5,8 @@ namespace Timr {
 	[GtkTemplate (ui = "/de/hannenz/timr/timr.ui")]
 	public class ApplicationWindow : Gtk.ApplicationWindow {
 
-		[GtkChild]
-		private Gtk.Label elapsed_label;
+		// [GtkChild]
+		// private Gtk.Label elapsed_label;
 
 		[GtkChild]
 		private Gtk.Entry activity_entry;
@@ -22,6 +22,9 @@ namespace Timr {
 
 		[GtkChild]
 		public Gtk.TreeStore clients_jobs;
+
+		[GtkChild]
+		public Gtk.ListStore clients;
 
 		[GtkChild]
 		public Gtk.TreeView activities_treeview;
@@ -58,7 +61,8 @@ namespace Timr {
 			GLib.Object (application:application);
 			this.app = application;
 			this.timer = new GLib.Timer();
-			this.elapsed_label.set_size_request(120, -1);
+
+			//this.elapsed_label.set_size_request(120, -1);
 
 			// Gtk.TreeIter iter;
 			// this.activities.append(out iter);
@@ -126,9 +130,61 @@ namespace Timr {
 				else {
 					mssg = "%02u:%02u hrs".printf(seconds / 3600, seconds % 3600);
 				}
-				elapsed_label.set_text(mssg);
+				timer_button.set_label (mssg);
 			}
 			return true;
+		}
+
+		[GtkCallback]
+		public void on_add_client_button_clicked () {
+			var dlg = new ClientDialog(this, null);
+			var response = dlg.run () ;
+			if (response == ResponseType.OK) {
+				var client = dlg.get_client ();
+				debug ("Saving new client: %s %s", client.name, client.abbrev);
+
+				if (app.repository.save_client (client)) {
+					TreeIter iter;
+					clients_jobs.append(out iter, null);
+					clients_jobs.set(iter, 0, client, 1, client.name, 2, client.abbrev, 3, "%s %s".printf(client.abbrev, client.name));
+				}
+				else {
+					error ("Failed to save client.");
+				}
+			}
+			dlg.destroy ();
+		}
+
+		[GtkCallback]
+		public void on_add_job_button_clicked () {
+			var dlg = new JobDialog(this, null);
+			var response = dlg.run ();
+			if (response == ResponseType.OK) {
+				var job = dlg.get_job ();
+				debug ("New job: %s %s %u", job.name, job.abbrev, job.client.id);
+
+				if (app.repository.save_job (job)) {
+
+					clients_jobs.foreach ( (model, path, iter) => {
+						if (clients_jobs.iter_depth (iter) == 0) {
+							Client client;
+							clients_jobs.get(iter, 0, out client);
+							if (client.id == job.client.id) {
+								TreeIter new_iter;
+								clients_jobs.append(out new_iter, iter);
+								clients_jobs.set(new_iter, 0, job, 1, job.name, 2, job.abbrev, 3, "<b>%s</b> %s".printf(job.abbrev, job.name));
+								return true;
+							}
+						}
+						return false;
+					});
+
+				}
+				else {
+					error ("Failed to save job.");
+				}
+			}
+			dlg.destroy ();
 		}
 
 		[GtkCallback]
@@ -224,8 +280,33 @@ namespace Timr {
 		}
 
 		[GtkCallback]
-		public void on_client_treeview_row_activated(Gtk.TreePath path, Gtk.TreeViewColumn column) {
+		public void on_client_treeview_row_activated (Gtk.TreePath path, Gtk.TreeViewColumn column) {
 //			stdout.printf("Row has been activated\n");
+			
+			TreeIter iter;
+			if (clients_jobs.get_iter (out iter, path)) {
+				if (clients_jobs.iter_depth (iter) == 0){
+					// Handle Clients
+				}
+				else {
+					// Handle Jobs
+
+					Job job;
+					clients_jobs.get (iter, 0, out job);
+					var dlg = new JobDialog (this, job);
+					if ((dlg.run ()) == ResponseType.OK) {
+
+						job = dlg.get_job ();
+
+						if (app.repository.save_job (job)) {
+							clients_jobs.set(iter, 0, job, 1, job.name, 2, job.abbrev, 3, "<b>%s</b> %s".printf(job.abbrev, job.name));
+						}
+						else {
+							error ("Failed to save job.");
+						}
+					}
+				}
+			}
 		}
 
 		// [GtkCallback]
@@ -350,7 +431,7 @@ namespace Timr {
 			timer_button.override_color (Gtk.StateFlags.NORMAL, white);
 
 			// Reset UI
-			elapsed_label.set_text ("0 sec");
+			//timer_button.set_text ("0 sec");
 			activity_entry.set_text ("");
 			job_combobox.set_active (0);
 

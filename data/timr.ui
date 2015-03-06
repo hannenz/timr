@@ -29,6 +29,19 @@
 		</columns>
 	</object>
 
+	<object class="GtkListStore" id="clients">
+		<columns>
+			<!-- 0 GObject The Client instance -->
+			<column type="GObject" />
+			<!-- 1 Name -->
+			<column type="gchararray" />
+			<!-- 2 Abbrev -->
+			<column type="gchararray" />
+			<!-- 2 Display name -->
+			<column type="gchararray" />
+		</columns>
+	</object>
+
 	<template class="TimrApplicationWindow" parent="GtkApplicationWindow">
 		<property name="title" translatable="yes">Timr</property>
 		<property name="default-width">800</property>
@@ -41,65 +54,74 @@
 				<property name="has-subtitle">False</property>
 
 				<child>
-					<object class="GtkEntry" id="activity_entry">
-						<property name="visible">True</property>
-						<property name="placeholder-text">What are you working on?</property>
-						<property name="width-request">150</property>
-						<property name="activates=default">True</property>
-					</object>
-					<packing>
-						<property name="pack-type">start</property>
-					</packing>
-				</child>
-				<child>
-					<object class="GtkComboBox" id="job_combobox">
-						<property name="visible">True</property>
-						<property name="model">clients_jobs</property>
-						<property name="width-request">150</property>
-						<property name="add-tearoffs">True</property>
-<!-- 						<property name="has-entry">True</property>
-						<property name="entry-text-column">2</property>
- -->
+ 					<object class="GtkButtonBox">
+ 						<property name="visible">True</property>
+						<property name="layout-style">GTK_BUTTONBOX_SPREAD</property>
 						<child>
-							<object class="GtkCellRendererText" />
-							<attributes>
-								<attribute name="markup">3</attribute>
-							</attributes>
+							<object class="GtkEntry" id="activity_entry">
+								<property name="visible">True</property>
+								<property name="placeholder-text">What are you working on?</property>
+								<property name="width-request">150</property>
+								<property name="activates=default">True</property>
+							</object>
 							<packing>
 								<property name="pack-type">start</property>
 							</packing>
 						</child>
-					</object>
-					<packing>
-						<property name="pack-type">start</property>
-					</packing>
-				</child>
-				<child>
-					<object class="GtkLabel" id="elapsed_label">
-						<property name="visible">True</property>
-						<property name="label">0 sec</property>
-					</object>
-					<packing>
-						<property name="pack-type">start</property>
-					</packing>
-				</child>
-				<child>
-					<object class="GtkButton" id="timer_button">
-						<property name="visible">True</property>
-						<property name="label">Start timer</property>
-						<property name="relief">none</property>
-						<property name="can-default">True</property>
-						<signal name="clicked" handler="on_timer_toggle_button_clicked" />
-					</object>
-					<packing>
-						<property name="pack-type">start</property>
-					</packing>
-				</child>
-				<child>
-					<object class="GtkButton" id="add_button">
-						<property name="visible">True</property>
-						<property name="label">Add</property>
-						<signal name="clicked" handler="on_activity_add_button_clicked" />
+						<child>
+							<object class="GtkComboBox" id="job_combobox">
+								<property name="visible">True</property>
+								<property name="model">clients_jobs</property>
+								<property name="width-request">150</property>
+								<property name="add-tearoffs">True</property>
+								<child>
+									<object class="GtkCellRendererText" />
+									<attributes>
+										<attribute name="markup">3</attribute>
+									</attributes>
+									<packing>
+										<property name="pack-type">start</property>
+									</packing>
+								</child>
+							</object>
+							<packing>
+								<property name="pack-type">start</property>
+							</packing>
+						</child>
+ 						<child>
+							<object class="GtkButton" id="timer_button">
+								<property name="visible">True</property>
+								<property name="label">Start timer</property>
+								<property name="relief">none</property>
+								<property name="can-default">True</property>
+								<signal name="clicked" handler="on_timer_toggle_button_clicked" />
+							</object>
+						</child>
+						<child>
+							<object class="GtkButton" id="add_button">
+								<property name="visible">True</property>
+								<property name="label">Add activity</property>
+								<signal name="clicked" handler="on_activity_add_button_clicked" />
+							</object>
+							<packing>
+								<property name="pack-type">start</property>
+							</packing>
+						</child>
+						<child>
+							<object class="GtkButton">
+								<property name="visible">True</property>
+								<property name="label">Add client</property>
+								<signal name="clicked" handler="on_add_client_button_clicked" />
+							</object>
+						</child>
+						<child>
+							<object class="GtkButton">
+								<property name="visible">True</property>
+								<property name="label">Add job</property>
+								<signal name="clicked" handler="on_add_job_button_clicked" />
+							</object>
+						</child>
+
 					</object>
 					<packing>
 						<property name="pack-type">start</property>

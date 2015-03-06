@@ -39,7 +39,11 @@ namespace Timr {
 
 			GLib.Object (transient_for: window, use_header_bar: 0);
 
+			parent_window = window;
+
 			job_combobox.set_model(clients_jobs);
+
+			set_title ("Activity");
 
 			if (activity != null) {
 				description_entry.set_text (activity.description);

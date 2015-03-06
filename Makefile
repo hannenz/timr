@@ -14,12 +14,16 @@ SOURCES =	src/main.vala\
 			src/job.vala\
 			src/client.vala\
 			src/activity_dialog.vala\
+			src/client_dialog.vala\
+			src/job_dialog.vala\
 			src/repository.vala\
 			src/cell_renderer_button.vala
 
 UIFILES = 	data/timr.ui\
 			data/app_menu.ui\
 			data/activity_dialog.ui\
+			data/job_dialog.ui\
+			data/client_dialog.ui\
 			data/timr.gresource.xml
 
 #Disable implicit rules by empty target .SUFFIXES
