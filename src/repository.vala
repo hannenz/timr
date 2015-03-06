@@ -8,7 +8,17 @@ namespace Timr {
 
 		private Sqlite.Database db;
 
-		public Repository (string db_filename) {
+		protected string table_name;
+
+		protected string[] fields;
+
+		protected string order_by;
+
+		protected string order_dir;
+
+		private string db_filename = "/home/hannenz/timr/data/timr.db";
+
+		public Repository () {
 
 			// IMPLEMENT ME: If file does not exist, create it and create all tables from schema
 
@@ -175,6 +185,46 @@ namespace Timr {
 
 		public bool delete_job (Job job) {
 			string query = "DELETE FROM `jobs` WHERE `id`=%u".printf(job.id);
+			return (db.exec(query) == Sqlite.OK);
+		}
+
+		public ArrayList<Category>? get_all_categories () {
+			ArrayList<Category> categories = new ArrayList<Category>();
+
+			var query = "SELECT `id`,`name`,`abbrev` FROM `categories` ORDER BY `name` ASC";
+			int r = db.exec (query, (n_columns, values, column_names) => {
+				var category = new Category(int.parse(values[0]), values[1], values[2]);
+				categories.add(category);
+				return 0;
+			});
+			if (r != Sqlite.OK){
+				return null;
+			}
+
+			return categories;
+		}
+
+		public Category? get_category (int category_id) {
+			Category category = null;
+			string query = "SELECT `id`,`name`,`abbrev` FROM `categories` WHERE `id`=%u".printf (category_id);
+			db.exec (query, (n, values, names) => {
+				category = new Category (int.parse (values[0]), values[1], values[2]);
+				return 1;
+			});
+			return category;
+		}
+
+		public bool save_category (Category category) {
+
+			string query = (category.id > 0) 
+				? "UPDATE `categories` SET `name`='%s',`abbrev`='%s' WHERE `id`=%u".printf (category.name, category.abbrev, category.id)
+				: "INSERT INTO `categories` (`name`, `abbrev`) VALUES ('%s','%s')".printf (category.name, category.abbrev)
+			;
+			return (db.exec (query) == Sqlite.OK);
+		}
+
+		public bool delete_category (Category category) {
+			string query = "DELETE FROM `categories` WHERE `id`=%u".printf(category.id);
 			return (db.exec(query) == Sqlite.OK);
 		}
 

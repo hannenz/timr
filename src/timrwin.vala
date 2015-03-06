@@ -27,6 +27,9 @@ namespace Timr {
 		public Gtk.ListStore clients;
 
 		[GtkChild]
+		public Gtk.ListStore categories;
+
+		[GtkChild]
 		public Gtk.TreeView activities_treeview;
 
 		[GtkChild]
@@ -228,7 +231,7 @@ namespace Timr {
 						// Check if we have a valid timespan
 						if (app.check_insert_activity (activity)) {
 							// Yes, then save it (UPDATE)
-							if (app.repository.save_activity(activity)) {
+							if (app.repository.save_activity (activity)) {
 								// and insert the new one
 								app.insert_activity (activity);
 							}

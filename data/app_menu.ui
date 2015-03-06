@@ -20,15 +20,30 @@
 		<section>
 			<item>
 				<attribute name="label" translatable="yes">_Resume</attribute>
-				<attribute name="action">context.resume</attribute>
+				<attribute name="action">app.resume</attribute>
 			</item>
 		</section>
-		<section>
+ 		<section>
 			<item>
 				<attribute name="label" translatable="yes">_Delete</attribute>
-				<attribute name="action">context.delete</attribute>
+				<attribute name="action">app.delete</attribute>
 			</item>
 		</section>
-	</menu>
+ 	</menu>
 
+	<menu id="jobs_context_menu_model">
+		<section>
+			<item>
+				<attribute name="label" translatable="yes">_Add job for this client</attribute>
+				<attribute name="action">app.add_job_for_client</attribute>
+			</item>
+		</section>
+ 		<section>
+			<item>
+				<attribute name="label" translatable="yes">_Delete</attribute>
+				<attribute name="action">app.delete_client</attribute>
+			</item>
+		</section>
+ 	</menu>
+ 	
 </interface>

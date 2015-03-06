@@ -1,5 +1,6 @@
 using Gtk;
 using Sqlite;
+using Gee;
 
 namespace Timr {
 
@@ -7,18 +8,15 @@ namespace Timr {
 
 		private ApplicationWindow window;
 
-		/* This should be private, but alas... */
-		public Repository repository;
-
 		protected GLib.MenuModel context_menu_model;
+
+		public Repository repository;
 
 		public Timr() {
 			application_id = "de.hannenz.timr";
 		}
 
 		public override void activate() {
-
-			this.repository = new Repository("/home/hannenz/timr/data/timr.db");
 
 			window = new ApplicationWindow(this);
 			window.present();
@@ -28,6 +26,8 @@ namespace Timr {
 				this.repository.save_activity(activity);
 				insert_activity (activity);
 			});
+
+			repository = new Repository ();
 
 			load_data ();
 
@@ -63,15 +63,15 @@ namespace Timr {
 			add_action (action);
 			set_accels_for_action("app.quit", {"<Ctrl>Q"} );
 
-			action = new GLib.SimpleAction ("context.resume", null);
+			action = new GLib.SimpleAction ("resume", null);
 			action.activate.connect (window.resume_activity);
 			add_action (action);
-			set_accels_for_action ("context.resume", {"<Ctrl>R"});
+			set_accels_for_action ("app.resume", {"<Ctrl>R"});
 
-			action = new GLib.SimpleAction ("context.delete", null);
+			action = new GLib.SimpleAction ("delete", null);
 			action.activate.connect (delete_activity);
 			add_action (action);
-			set_accels_for_action ("context.resume", {"<Delete>"});
+			set_accels_for_action ("app.delete", {"Delete"});
 
 			var builder = new Gtk.Builder.from_resource ("/de/hannenz/timr/app_menu.ui");
 			var app_menu = builder.get_object ("appmenu") as GLib.MenuModel;
@@ -84,6 +84,8 @@ namespace Timr {
 
 			uint button, time;
 			Gtk.Menu menu = new Gtk.Menu.from_model (context_menu_model);
+			menu.attach_to_widget(widget, null);
+
 			if (event != null) {
 				button = event.button;
 				time = event.time;
@@ -93,10 +95,8 @@ namespace Timr {
 				time = Gtk.get_current_event_time ();
 			}
 
-			menu.attach_to_widget(widget, null);
 			menu.popup(null, null, null, button, time);
 		}
-
 
 		private void load_data () {
 
@@ -120,6 +120,13 @@ namespace Timr {
 					window.clients_jobs.append (out iter, parent_iter);
 					window.clients_jobs.set (iter, 0, job, 1, job.name, 2, job.abbrev, 3, "<b>%s</b> %s".printf (job.abbrev, job.name));
 				}
+			}
+
+			var categories = repository.get_all_categories ();
+			foreach (var category in categories) {
+				Gtk.TreeIter iter;
+				window.categories.append(out iter);
+				window.categories.set(iter, 0, category, 1, category.name, 2, category.abbrev);
 			}
 		}
 

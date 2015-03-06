@@ -27,6 +27,7 @@
 						<child>
 							<object class="GtkEntry" id="description_entry">
 								<property name="visible">True</property>
+								<property name="activates-default">True</property>
 							</object>
 							<packing>
 								<property name="left_attach">1</property>
@@ -98,6 +99,7 @@
 						<child>
 							<object class="GtkEntry" id="timespan_entry">
 								<property name="visible">True</property>
+								<property name="activates-default">True</property>
 							</object>
 							<packing>
 								<property name="left_attach">1</property>
@@ -118,6 +120,7 @@
 			<object class="GtkButton" id="ok_button">
 				<property name="visible">True</property>
 				<property name="label">OK</property>
+				<property name="can-default">True</property>
 			</object>
 		</child>
 		<action-widgets>

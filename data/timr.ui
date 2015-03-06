@@ -42,6 +42,19 @@
 		</columns>
 	</object>
 
+	<object class="GtkListStore" id="categories">
+		<columns>
+			<!-- 0 GObject The Category instance -->
+			<column type="GObject" />
+			<!-- 1 Name -->
+			<column type="gchararray" />
+			<!-- 2 Abbrev -->
+			<column type="gchararray" />
+			<!-- 2 Display name -->
+			<column type="gchararray" />
+		</columns>
+	</object>
+
 	<template class="TimrApplicationWindow" parent="GtkApplicationWindow">
 		<property name="title" translatable="yes">Timr</property>
 		<property name="default-width">800</property>
@@ -62,7 +75,7 @@
 								<property name="visible">True</property>
 								<property name="placeholder-text">What are you working on?</property>
 								<property name="width-request">150</property>
-								<property name="activates=default">True</property>
+								<property name="activates-default">True</property>
 							</object>
 							<packing>
 								<property name="pack-type">start</property>
@@ -78,6 +91,24 @@
 									<object class="GtkCellRendererText" />
 									<attributes>
 										<attribute name="markup">3</attribute>
+									</attributes>
+									<packing>
+										<property name="pack-type">start</property>
+									</packing>
+								</child>
+							</object>
+							<packing>
+								<property name="pack-type">start</property>
+							</packing>
+						</child>
+						<child>
+							<object class="GtkComboBox" id="category_combobox">
+								<property name="visible">True</property>
+								<property name="model">categories</property>
+								<child>
+									<object class="GtkCellRendererText" />
+									<attributes>
+										<attribute name="markup">2</attribute>
 									</attributes>
 									<packing>
 										<property name="pack-type">start</property>

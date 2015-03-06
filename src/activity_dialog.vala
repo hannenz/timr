@@ -17,6 +17,9 @@ namespace Timr {
 		[GtkChild]
 		private Gtk.Entry timespan_entry;
 
+		[GtkChild]
+		public Gtk.Button ok_button;
+
 		private DateTime begin = null;
 
 		private DateTime end = null;
@@ -41,9 +44,7 @@ namespace Timr {
 
 			parent_window = window;
 
-			job_combobox.set_model(clients_jobs);
-
-			set_title ("Activity");
+			job_combobox.set_model (clients_jobs);
 
 			if (activity != null) {
 				description_entry.set_text (activity.description);
