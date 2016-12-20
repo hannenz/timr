@@ -51,8 +51,25 @@ namespace Timr {
 			return duration_nice;
 		}
 
+		public string get_duration_plaintext () {
+			string duration_nice;
+			int64 duration = (int64)this.end.difference(this.begin) / 1000000;
+
+			int64 hours = duration / 3600;
+			int64 minutes = (duration / 60) % 60;
+			int64 seconds = duration % 60;
+
+			duration_nice = (hours > 0) ? "%02u".printf((int)hours) : "%02u".printf((int)hours);
+			duration_nice += ":";
+			duration_nice += (minutes > 0) ? "%02u".printf((int)minutes) : "%02u".printf((int)minutes);
+			duration_nice += ":";
+			duration_nice += "%02u".printf((int)seconds);
+
+			return duration_nice;
+		}
+
 		public int get_duration () {
-			return (int)this.end.difference(this.begin) / 1000000;
+			return (int)(this.end.difference(this.begin) / 1000000);
 		}
 
 		public string get_timespan_formatted () {

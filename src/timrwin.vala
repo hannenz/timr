@@ -5,9 +5,6 @@ namespace Timr {
 	[GtkTemplate (ui = "/de/hannenz/timr/timr.ui")]
 	public class ApplicationWindow : Gtk.ApplicationWindow {
 
-		// [GtkChild]
-		// private Gtk.Label elapsed_label;
-
 		[GtkChild]
 		private Gtk.Entry activity_entry;
 
@@ -41,8 +38,12 @@ namespace Timr {
 		[GtkChild]
 		public Gtk.ButtonBox info_bar_action_area;
 
-		// [GtkChild]
-		// public Gtk.TreeViewColumn buttons_tv_column;
+		[GtkChild]
+		public Gtk.Box reporting_range;
+
+		public Granite.Widgets.DatePicker reporting_range_from;
+
+		public Granite.Widgets.DatePicker reporting_range_to;
 
 		private GLib.Timer timer;
 
@@ -65,24 +66,6 @@ namespace Timr {
 			this.app = application;
 			this.timer = new GLib.Timer();
 
-			//this.elapsed_label.set_size_request(120, -1);
-
-			// Gtk.TreeIter iter;
-			// this.activities.append(out iter);
-			// this.activities.set(iter,
-			// 	0, "Checked Emails",
-			// 	1, "HALMA_15001 Internes",
-			// 	2, 17*60 + 12,
-			// 	3, "<b>17</b>:12 min"
-			// );
-			// this.activities.append(out iter);
-			// this.activities.set(iter,
-			// 	0, "Bugfix",
-			// 	1, "HILAG_15001 Websitepflege",
-			// 	2, 17*60 + 12,
-			// 	3, "<b>03</b>:44 hrs"
-			// );
-
 			Timeout.add(1, this.update_timer);
 
 			red = Gdk.RGBA();
@@ -96,26 +79,15 @@ namespace Timr {
 			timer_button.override_color(Gtk.StateFlags.NORMAL, white);
 			timer_button.grab_default();
 
-			// var renderer = new CellRendererButton ();
-			// buttons_tv_column.pack_start(renderer, true);
+			print ("Creating DatePickers\n");
 
-			// activities_treeview.button_press_event.connect ( (event) => {
-
-			// 	if (event.type == Gdk.EventType.BUTTON_PRESS) {
-			// 		debug ("The treeview has been clicked!");
-
-			// 		TreePath path;
-			// 		TreeViewColumn column;
-			// 		int cell_x, cell_y;
-			// 		activities_treeview.get_path_at_pos ((int)event.x, (int)event.y, out path, out column, out cell_x, out cell_y);
-			// 		if (column.title == "Actions") {
-			// 			debug ("The buttons column has been clicked");
-			// 			return true;
-			// 		}
-			// 	}
-			// 	return false;
-			// });
+			reporting_range_from = new Granite.Widgets.DatePicker ();
+			reporting_range_to = new Granite.Widgets.DatePicker ();
+			reporting_range.pack_start(reporting_range_from, false, false, 0);
+			reporting_range.pack_start(reporting_range_to, false, false, 0);
+			reporting_range.show_all();
 		}
+
 
 		private bool update_timer() {
 
@@ -138,7 +110,7 @@ namespace Timr {
 			return true;
 		}
 
-		[GtkCallback]
+		// [GtkCallback]
 		public void on_add_client_button_clicked () {
 			var dlg = new ClientDialog(this, null);
 			var response = dlg.run () ;
@@ -158,7 +130,7 @@ namespace Timr {
 			dlg.destroy ();
 		}
 
-		[GtkCallback]
+		// [GtkCallback]
 		public void on_add_job_button_clicked () {
 			var dlg = new JobDialog(this, null);
 			var response = dlg.run ();
@@ -353,8 +325,8 @@ namespace Timr {
 			}
 		}
 
-		[GtkCallback]
-		public void on_activity_add_button_clicked (Gtk.Button button) {
+//		[GtkCallback]
+		public void on_activity_add_button_clicked (Gtk.Button? button) {
 			var activity_dialog = new ActivityDialog (this, clients_jobs);
 			activity_dialog.response.connect ( (response) => {
 				if (response == Gtk.ResponseType.OK){

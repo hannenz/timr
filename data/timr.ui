@@ -123,12 +123,12 @@
 							<object class="GtkButton" id="timer_button">
 								<property name="visible">True</property>
 								<property name="label">Start timer</property>
-								<property name="relief">none</property>
+								<!-- <property name="relief">none</property> -->
 								<property name="can-default">True</property>
 								<signal name="clicked" handler="on_timer_toggle_button_clicked" />
 							</object>
 						</child>
-						<child>
+<!-- 						<child>
 							<object class="GtkButton" id="add_button">
 								<property name="visible">True</property>
 								<property name="label">Add activity</property>
@@ -152,8 +152,7 @@
 								<signal name="clicked" handler="on_add_job_button_clicked" />
 							</object>
 						</child>
-
-					</object>
+ -->					</object>
 					<packing>
 						<property name="pack-type">start</property>
 					</packing>
@@ -262,20 +261,7 @@
 												</child>
 											</object>
 										</child>
-	-->										<child>
-											<object class="GtkTreeViewColumn" id="duration">
-												<property name="title">Duration</property>
-												<property name="clickable">True</property>
-												<property name="resizable">True</property>
-												<property name="sort-column-id">-1</property>
-												<child>
-													<object class="GtkCellRendererText" />
-													<attributes>
-														<attribute name="markup">2</attribute>
-													</attributes>
-												</child>
-											</object>
-										</child>
+	-->										
 										<child>
 											<object class="GtkTreeViewColumn" id="timespan">
 												<property name="title">Timespan</property>
@@ -286,6 +272,20 @@
 													<object class="GtkCellRendererText" />
 													<attributes>
 														<attribute name="markup">3</attribute>
+													</attributes>
+												</child>
+											</object>
+										</child>
+										<child>
+											<object class="GtkTreeViewColumn" id="duration">
+												<property name="title">Duration</property>
+												<property name="clickable">True</property>
+												<property name="resizable">True</property>
+												<property name="sort-column-id">-1</property>
+												<child>
+													<object class="GtkCellRendererText" />
+													<attributes>
+														<attribute name="markup">2</attribute>
 													</attributes>
 												</child>
 											</object>
@@ -361,7 +361,33 @@
 								<property name="title" translatable="yes">Clients &amp; Jobs</property>
 							</packing>
 						</child>
-					</object>
+
+ 						<child>
+							<object class="GtkScrolledWindow">
+								<property name="visible">True</property>
+
+								<child>
+									<object class="GtkBox">
+										<property name="visible">True</property>
+										<property name="orientation">vertical</property>
+
+										<child>
+											<object class="GtkBox" id="reporting_range">
+												<property name="visible">True</property>
+												<property name="orientation">horizontal</property>
+											</object>
+										</child>
+									</object>
+								</child>
+							</object>
+
+							<packing>
+								<property name="name">reporting</property>
+								<property name="title" translatable="yes">Reporting</property>
+							</packing>
+						</child>
+ 
+ 					</object>
 					<packing>
 						<property name="expand">True</property>
 						<property name="fill">True</property>

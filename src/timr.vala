@@ -49,6 +49,11 @@ namespace Timr {
 				return true;
 			});
 
+
+			print ("Connecting signals\n");
+
+			this.window.reporting_range_from.changed.connect ( update_report );
+			this.window.reporting_range_to.changed.connect ( update_report );
 		}
 
 		public override void startup () {
@@ -73,11 +78,35 @@ namespace Timr {
 			add_action (action);
 			set_accels_for_action ("app.delete", {"Delete"});
 
+			action = new GLib.SimpleAction("add_activity", null);
+			action.activate.connect (add_activity);
+			add_action (action);
+
+			action = new GLib.SimpleAction("add_client", null);
+			action.activate.connect (add_client);
+			add_action (action);
+
+			action = new GLib.SimpleAction("add_job", null);
+			action.activate.connect (add_job);
+			add_action (action);
+
 			var builder = new Gtk.Builder.from_resource ("/de/hannenz/timr/app_menu.ui");
 			var app_menu = builder.get_object ("appmenu") as GLib.MenuModel;
 			set_app_menu (app_menu);
 
 			context_menu_model = builder.get_object ("context_menu_model") as GLib.MenuModel;
+		}
+
+		public void add_activity () {
+			this.window.on_activity_add_button_clicked (null);
+		}
+
+		public void add_client () {
+			this.window.on_add_client_button_clicked ();
+		}
+
+		public void add_job () {
+			this.window.on_add_job_button_clicked ();
 		}
 
 		private void do_popup_menu (Widget widget, Gdk.EventButton? event) {
@@ -257,6 +286,35 @@ namespace Timr {
 			}
 
 			return date.format ("%a, %d. %B %Y");
+		}
+
+		protected void update_report () {
+
+			print ("Updating report from %s to %s\n", this.window.reporting_range_from.date.to_string (), this.window.reporting_range_to.date.to_string ());
+
+			var map = new Gee.HashMap<string, int> ();
+
+			window.activities.foreach ( (model, path, iter) => {
+					Activity activity;
+					model.get(iter, 0, out activity);
+
+					if (activity != null) {
+
+						var duration = activity.get_duration ();
+
+						if (activity.job.abbrev in map) {
+							duration += map[activity.job.abbrev];
+						}
+
+						map.set(activity.job.abbrev, duration);
+
+					}
+					return false;
+				});
+
+			foreach (string job in map.keys) {
+				stdout.printf("%-12s %02u:%02u hrs.\n", job, map[job] / 3600, map[job] % 3600);
+			}
 		}
 	}
 }
